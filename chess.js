@@ -1,23 +1,36 @@
 const { show, hide } = require("alternate-screen")
 const readline = require("readline-sync");
 
+const RESET = "\x1b[0m";
 const GREEN = "\x1b[32m";
 const WHITE = "\x1b[37m";
+const BG_BLACK = "\x1b[40m";
+const BG_WHITE = "\x1b[47m";
 
 function displayBoard(board) {
+	let count = 1;
+
 	for(let rank = 0; rank < board.length; ++rank) {
-		process.stdout.write(8-rank + "\t");
+		process.stdout.write(RESET + (8-rank + "\t"));
 		for(let file = 0; file < board[rank].length; ++file) {
 			let square = board[rank][file];
+
 			if(square != '') {
-				process.stdout.write(square + '  ');
+				if(count % 2 === 0) process.stdout.write(BG_BLACK + ' ' + square + ' ');
+				else process.stdout.write(BG_WHITE + ' ' + square + ' ');
 			} else {
-				process.stdout.write('-  ');
+				if(count % 2 === 0) process.stdout.write(BG_BLACK +  ' - ');
+				else process.stdout.write(BG_WHITE + ' - ');
 			}
+			++count;
 		}
+
+		if(rank % 2 === 0) count = 2;
+		else count = 1;
+
 		console.log();
 	}
-	console.log("\n\n\ta  b  c  d  e  f  g  h\n\n");
+	console.log(RESET + "\n\n\ta  b  c  d  e  f  g  h\n\n");
 }
 
 function move(before, after, board, coordinates) {
@@ -265,7 +278,6 @@ function legalMoves(pieceCoordinate, board, coordinates) {
 			}
 
 			break;
-		
 		case GREEN + 'R' + WHITE:
 			for(let i = 1; rank-i >= 0; ++i) {
 				if(board[rank-i][file] === '') {
@@ -392,27 +404,27 @@ function legalMoves(pieceCoordinate, board, coordinates) {
 	return moves;
 }
 
-// board = [
-// 	[GREEN + 'R' + WHITE, GREEN + 'N' + WHITE, GREEN + 'B' + WHITE, GREEN + 'Q' + WHITE, GREEN + 'K' + WHITE, GREEN + 'B' + WHITE, GREEN + 'N' + WHITE, GREEN + 'R' + WHITE],
-// [GREEN + 'p' + WHITE, GREEN + 'p' + WHITE, GREEN + 'p' + WHITE, GREEN + 'p' + WHITE, GREEN + 'p' + WHITE, GREEN + 'p' + WHITE, GREEN + 'p' + WHITE, GREEN + 'p' + WHITE],
-// 	['', '', '', '', '', '', '', ''],
-// 	['', '', '', '', '', '', '', ''],
-// 	['', '', '', '', '', '', '', ''],
-// 	['', '', '', '', '', '', '', ''],
-// 	['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
-// 	['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
-// ];
-
 board = [
+	[GREEN + 'R' + WHITE, GREEN + 'N' + WHITE, GREEN + 'B' + WHITE, GREEN + 'Q' + WHITE, GREEN + 'K' + WHITE, GREEN + 'B' + WHITE, GREEN + 'N' + WHITE, GREEN + 'R' + WHITE],
+[GREEN + 'p' + WHITE, GREEN + 'p' + WHITE, GREEN + 'p' + WHITE, GREEN + 'p' + WHITE, GREEN + 'p' + WHITE, GREEN + 'p' + WHITE, GREEN + 'p' + WHITE, GREEN + 'p' + WHITE],
 	['', '', '', '', '', '', '', ''],
 	['', '', '', '', '', '', '', ''],
-	['', '', '', '', 'P', '', '', ''],
-	['', '', 'P', '', '', '', '', ''],
 	['', '', '', '', '', '', '', ''],
-	['', 'p', '', '', GREEN + 'R' + WHITE, '', GREEN + 'P' + WHITE, ''],
-	['', '', '', '', 'P', '', '', ''],
-	['', '', '', '', 'P', '', '', ''],
+	['', '', '', '', '', '', '', ''],
+	['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
+	['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
 ];
+
+// board = [
+// 	['', '', '', '', '', '', '', ''],
+// 	['', '', '', '', '', '', '', ''],
+// 	['', '', '', '', 'P', '', '', ''],
+// 	['', '', 'P', '', '', '', '', ''],
+// 	['', '', '', '', '', '', '', ''],
+// 	['', 'p', '', '', GREEN + 'R' + WHITE, '', GREEN + 'P' + WHITE, ''],
+// 	['', '', '', '', 'P', '', '', ''],
+// 	['', '', '', '', 'P', '', '', ''],
+// ];
 
 coordinates = {
 	'a': 0,
@@ -445,7 +457,7 @@ let pieceCoordinate, operation, op, drawOffer, turn = "White", validMove = /^[a-
 // move("e2", "e4", board, coordinates);
 // move("f1", "c4", board, coordinates);
 displayBoard(board);
-console.log(legalMoves("e3", board, coordinates));
+// console.log(legalMoves("e3", board, coordinates));
 // console.log(legalMoves("b4", board, coordinates));
 // console.log(legalMoves("e5", board, coordinates));
 // move("f1", "c4", board, coordinates);
