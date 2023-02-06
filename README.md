@@ -9,5 +9,5 @@ Dependencies:
   - readline-sync
 
 ### How to run the app ###
-```cd CLI_Chess```
+```cd CLI_Chess```<br>
 ```node chess.js```
