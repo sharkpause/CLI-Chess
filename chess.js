@@ -57,75 +57,334 @@ function legalMoves(pieceCoordinate, board, coordinates) {
 	let rank = coordinates[pieceCoordinate[1]];
 	let piece = board[rank][file];
 	let moves = [];
+	let directions = [];
 
 	switch(piece) {
 		case GREEN + 'p' + WHITE:
 			moves.push(pieceCoordinate[0] + (parseInt(pieceCoordinate[1] - 2)));
+		case GREEN + 'P' + WHITE:
+			if(rank-1 >= 0 && file-1 >= 0) {
+				if(board[rank-1][file-1] !== '' && !board[rank-1][file-1].includes(GREEN)) {
+					moves.push(fileCoordinates[file-1] + rankCoordinates[rank-1]);
+				}
+				if(board[rank-1][file+1] !== '' && !board[rank-1][file+1].includes(GREEN)) {
+					moves.push(fileCoordinates[file+1] + rankCoordinates[rank-1]);
+				}
+			}
+
 			break;
 		case 'p':
 			moves.push(pieceCoordinate[0] + (parseInt(pieceCoordinate[1]) + 2));
-			break;
-		case 'B':
-			let diagonals = [];
-
-			// top-left
-			for(let i = 1; file-i >= 0 && rank-i >= 0 && board[rank-i][file-i] === ''; ++i) {
-				diagonals.push(fileCoordinates[file-i] + rankCoordinates[rank-i]);
+		case 'P':
+			if(rank-1 >= 0 && file-1 >= 0) {
+				if(board[rank-1][file-1] !== '' && board[rank-1][file-1].includes(GREEN)) {
+					moves.push(fileCoordinates[file-1] + rankCoordinates[rank-1]);
+				}
+				if(board[rank-1][file+1] !== '' && board[rank-1][file+1].includes(GREEN)) {
+					moves.push(fileCoordinates[file+1] + rankCoordinates[rank-1]);
+				}
 			}
 
-			moves.push(diagonals);
-			diagonals = [];
+			break;
+		case GREEN + 'B' + WHITE:
+			// top-left
+			for(let i = 1; file-i >= 0 && rank-i >= 0; ++i) {
+				if(!board[rank-i][file-i].includes(GREEN) && board[rank-i][file-i] !== '') {
+					directions.push(fileCoordinates[file-i] + rankCoordinates[rank-i]);
+					break;
+				} else if(board[rank-i][file-i] !== '') {
+					break;
+				}
+
+				directions.push(fileCoordinates[file-i] + rankCoordinates[rank-i]);
+			}
+
+			moves.push(directions);
+			directions = [];
 
 			// top-right
-			for(let i = 1; file+i < 8 && rank-i >= 0 && board[rank-i][file+i] === ''; ++i) {
-				diagonals.push(fileCoordinates[file+i] + rankCoordinates[rank-i]);
+			for(let i = 1; file+i < 8 && rank-i >= 0; ++i) {
+				// console.log(board[rank-i][file-1], file, rank);
+				if(!board[rank-i][file+i].includes(GREEN) && board[rank-i][file+i] !== '') {
+					directions.push(fileCoordinates[file+i] + rankCoordinates[rank-i]);
+					break;
+				} else if(board[rank-i][file+i] !== '') {
+					break;
+				}
+
+				directions.push(fileCoordinates[file+i] + rankCoordinates[rank-i]);
 			}
 
-			moves.push(diagonals);
-			diagonals = [];
+			moves.push(directions);
+			directions = [];
 
 			// bottom-left
-			for(let i = 1; file-i >= 0 && rank+i < 8 && board[rank+i][file-i] === ''; ++i) {
+			for(let i = 1; file-i >= 0 && rank+i < 8; ++i) {
+				// console.log(board[rank-i][file-1], file, rank);
+				if(!board[rank+i][file-i].includes(GREEN) && board[rank+i][file-i] !== '') {
+					directions.push(fileCoordinates[file-i] + rankCoordinates[rank+i]);
+					break;
+				} else if(board[rank+i][file-i] !== '') {
+					break;
+				}
 
-				diagonals.push(fileCoordinates[file-i] + rankCoordinates[rank+i]);
+				directions.push(fileCoordinates[file-i] + rankCoordinates[rank+i]);
 			}
 
-			moves.push(diagonals);
-			diagonals = [];
+			moves.push(directions);
+			directions = [];
 
 			// bottom-right
-			for(let i = 1; file+i < 8 && rank+i < 8 && board[rank+i][file+i] === ''; ++i) {
-				diagonals.push(fileCoordinates[file+i] + rankCoordinates[rank+i]);
+			for(let i = 1; file+i < 8 && rank+i < 8; ++i) {
+				// console.log(board[rank-i][file-1], file, rank);
+				if(!board[rank+i][file+i].includes(GREEN) && board[rank+i][file+i] !== '') {
+					directions.push(fileCoordinates[file+i] + rankCoordinates[rank+i]);
+					break;
+				} else if(board[rank+i][file+i] !== '') {
+					break;
+				}
+
+				directions.push(fileCoordinates[file+i] + rankCoordinates[rank+i]);
 			}
 
-			moves.push(diagonals);
+			moves.push(directions);
+
+			break;
+		case 'B':
+			// top-left
+			for(let i = 1; file-i >= 0 && rank-i >= 0; ++i) {
+				if(board[rank-i][file-i].includes(GREEN)) {
+					directions.push(fileCoordinates[file-i] + rankCoordinates[rank-i]);
+					break;
+				} else if(board[rank-i][file-i] !== '') {
+					break;
+				}
+
+				directions.push(fileCoordinates[file-i] + rankCoordinates[rank-i]);
+			}
+
+			moves.push(directions);
+			directions = [];
+
+			// top-right
+			for(let i = 1; file+i < 8 && rank-i >= 0; ++i) {
+				if(board[rank-i][file+i].includes(GREEN)) {
+					directions.push(fileCoordinates[file+i] + rankCoordinates[rank-i]);
+					break;
+				} else if(board[rank-i][file+i] !== '') {
+					break;
+				}
+
+				directions.push(fileCoordinates[file+i] + rankCoordinates[rank-i]);
+			}
+
+			moves.push(directions);
+			directions = [];
+
+			// bottom-left
+			for(let i = 1; file-i >= 0 && rank+i < 8; ++i) {
+				if(board[rank+i][file-i].includes(GREEN)) {
+					directions.push(fileCoordinates[file-i] + rankCoordinates[rank+i]);
+					break;
+				} else if(board[rank+i][file-i] !== '') {
+					break;
+				}
+
+				directions.push(fileCoordinates[file-i] + rankCoordinates[rank+i]);
+			}
+
+			moves.push(directions);
+			directions = [];
+
+			// bottom-right
+			for(let i = 1; file+i < 8 && rank+i < 8; ++i) {
+				if(board[rank+i][file+i].includes(GREEN)) {
+					directions.push(fileCoordinates[file+i] + rankCoordinates[rank+i]);
+					break;
+				} else if(board[rank+i][file+i] !== '') {
+					break;
+				}
+
+				directions.push(fileCoordinates[file+i] + rankCoordinates[rank+i]);
+			}
+
+			moves.push(directions);
+
+			break;
+		case GREEN + 'N' + WHITE:
+			if(rank-2 >= 0 && file-1 >= 0 && (board[rank-2][file-1] === '' || !board[rank-2][file-1].includes(GREEN))) {
+				moves.push(fileCoordinates[file-1] + rankCoordinates[rank-2]);
+			}
+			if(rank-2 >= 0 && file+1 < 8 && (board[rank-2][file+1] === '' || !board[rank-2][file+1].includes(GREEN))) {
+				moves.push(fileCoordinates[file+1] + rankCoordinates[rank-2]);
+			}
+			if(rank+2 < 8 && file-1 >= 0 && (board[rank+2][file-1] === '' || !board[rank+2][file-1].includes(GREEN))) {
+				moves.push(fileCoordinates[file-1] + rankCoordinates[rank+2]);
+			}
+			if(rank+2 < 8 && file+1 < 8 && (board[rank+2][file+1] === '' || !board[rank+2][file+1].includes(GREEN))) {
+				moves.push(fileCoordinates[file+1] + rankCoordinates[rank+2]);
+			}
+			if(file-2 >= 0 && rank-1 >= 0 && (board[rank-1][file-2] === '' || !board[rank-1][file-2].includes(GREEN))) {
+				moves.push(fileCoordinates[file-2] + rankCoordinates[rank-1]);
+			}
+			if(file-2 >= 0 && rank+1 < 8 && (board[rank+1][file-2] === '' || !board[rank+1][file-2].includes(GREEN))) {
+				moves.push(fileCoordinates[file-2] + rankCoordinates[rank+1]);
+			}
+			if(file+2 < 8 && rank-1 >= 0 && (board[rank-1][file+2] === '' || !board[rank-1][file+2].includes(GREEN))) {
+				moves.push(fileCoordinates[file+2] + rankCoordinates[rank-1]);
+			}
+			if(file+2 < 8 && rank+1 < 8 && (board[rank+1][file+2] === '' || !board[rank+1][file+2].includes(GREEN))) {
+				moves.push(fileCoordinates[file+2] + rankCoordinates[rank+1]);
+			}
 
 			break;
 		case 'N':
-			if(rank-2 >= 0 && file-1 >= 0 && board[rank-2][file-1] === '') {
+			if(rank-2 >= 0 && file-1 >= 0 && (board[rank-2][file-1] === '' || board[rank-2][file-1].includes(GREEN))) {
 				moves.push(fileCoordinates[file-1] + rankCoordinates[rank-2]);
 			}
-			if(rank-2 >= 0 && file+1 < 8 && board[rank-2][file+1] === '') {
+			if(rank-2 >= 0 && file+1 < 8 && (board[rank-2][file+1] === '' || board[rank-2][file+1].includes(GREEN))) {
 				moves.push(fileCoordinates[file+1] + rankCoordinates[rank-2]);
 			}
-			if(rank+2 < 8 && file-1 >= 0 && board[rank+2][file-1] === '') {
+			if(rank+2 < 8 && file-1 >= 0 && (board[rank+2][file-1] === '' || board[rank+2][file-1].includes(GREEN))) {
 				moves.push(fileCoordinates[file-1] + rankCoordinates[rank+2]);
 			}
-			if(rank+2 < 8 && file+1 < 8 && board[rank+2][file+1] === '') {
+			if(rank+2 < 8 && file+1 < 8 && (board[rank+2][file+1] === '' || board[rank+2][file+1].includes(GREEN))) {
 				moves.push(fileCoordinates[file+1] + rankCoordinates[rank+2]);
 			}
-			if(file-2 >= 0 && rank-1 >= 0 && board[rank-1][file-2] === '') {
+			if(file-2 >= 0 && rank-1 >= 0 && (board[rank-1][file-2] === '' || board[rank-1][file-2].includes(GREEN))) {
 				moves.push(fileCoordinates[file-2] + rankCoordinates[rank-1]);
 			}
-			if(file-2 >= 0 && rank+1 < 8 && board[rank+1][file-2] === '') {
+			if(file-2 >= 0 && rank+1 < 8 && (board[rank+1][file-2] === '' || board[rank+1][file-2].includes(GREEN))) {
 				moves.push(fileCoordinates[file-2] + rankCoordinates[rank+1]);
 			}
-			if(file+2 < 8 && rank-1 >= 0 && board[rank-1][file+2] === '') {
+			if(file+2 < 8 && rank-1 >= 0 && (board[rank-1][file+2] === '' || board[rank-1][file+2].includes(GREEN))) {
 				moves.push(fileCoordinates[file+2] + rankCoordinates[rank-1]);
 			}
-			if(file+2 < 8 && rank+1 < 8 && board[rank+1][file+2] === '') {
+			if(file+2 < 8 && rank+1 < 8 && (board[rank+1][file+2] === '' || board[rank+1][file+2].includes(GREEN))) {
 				moves.push(fileCoordinates[file+2] + rankCoordinates[rank+1]);
 			}
+
+			break;
+		
+		case GREEN + 'R' + WHITE:
+			for(let i = 1; rank-i >= 0; ++i) {
+				if(board[rank-i][file] === '') {
+					directions.push(fileCoordinates[file] + rankCoordinates[rank-i]);
+				} else if(!board[rank-i][file].includes(GREEN)) {
+					directions.push(fileCoordinates[file] + rankCoordinates[rank-i]);
+					break;
+				} else {
+					break;
+				}
+			}
+
+			moves.push(directions);
+			directions = [];
+
+			// down
+			for(let i = 1; rank+i < 8; ++i) {
+				if(board[rank+i][file] === '') {
+					directions.push(fileCoordinates[file] + rankCoordinates[rank+i]);
+				} else if(!board[rank+i][file].includes(GREEN)) {
+					directions.push(fileCoordinates[file] + rankCoordinates[rank+i]);
+					break;
+				} else {
+					break;
+				}
+			}
+
+			moves.push(directions);
+			directions = [];
+
+			// left
+			for(let i = 1; file-i >= 0; ++i) {
+				if(board[rank][file-i] === '') {
+					directions.push(fileCoordinates[file-i] + rankCoordinates[rank]);
+				} else if(!board[rank][file-i].includes(GREEN)) {
+					directions.push(fileCoordinates[file-i] + rankCoordinates[rank]);
+					break;
+				} else {
+					break;
+				}
+			}
+
+			moves.push(directions);
+			directions = [];
+
+			// right
+			for(let i = 1; file+i < 8; ++i) {
+				if(board[rank][file+i] === '') {
+					directions.push(fileCoordinates[file+i] + rankCoordinates[rank]);
+				} else if(!board[rank][file+i].includes(GREEN)) {
+					directions.push(fileCoordinates[file+i] + rankCoordinates[rank]);
+					break;
+				} else {
+					break;
+				}
+			}
+
+			moves.push(directions);
+
+			break;
+		case 'R':
+			// up
+			for(let i = 1; rank-i >= 0; ++i) {
+				if(board[rank-i][file] === '') {
+					directions.push(fileCoordinates[file] + rankCoordinates[rank-i]);
+				} else if(board[rank-i][file].includes(GREEN)) {
+					directions.push(fileCoordinates[file] + rankCoordinates[rank-i]);
+					break;
+				} else {
+					break;
+				}
+			}
+
+			moves.push(directions);
+			directions = [];
+
+			// down
+			for(let i = 1; rank+i < 8; ++i) {
+				if(board[rank+i][file] === '') {
+					directions.push(fileCoordinates[file] + rankCoordinates[rank+i]);
+				} else if(board[rank+i][file].includes(GREEN)) {
+					directions.push(fileCoordinates[file] + rankCoordinates[rank+i]);
+					break;
+				} else {
+					break;
+				}
+			}
+
+			moves.push(directions);
+			directions = [];
+
+			// left
+			for(let i = 1; file-i >= 0; ++i) {
+				if(board[rank][file-i] === '') {
+					directions.push(fileCoordinates[file-i] + rankCoordinates[rank]);
+				} else if(board[rank][file-i].includes(GREEN)) {
+					directions.push(fileCoordinates[file-i] + rankCoordinates[rank]);
+					break;
+				} else {
+					break;
+				}
+			}
+
+			moves.push(directions);
+			directions = [];
+
+			// right
+			for(let i = 1; file+i < 8; ++i) {
+				if(board[rank][file+i] === '') {
+					directions.push(fileCoordinates[file+i] + rankCoordinates[rank]);
+				} else if(board[rank][file+i].includes(GREEN)) {
+					directions.push(fileCoordinates[file+i] + rankCoordinates[rank]);
+					break;
+				} else {
+					break;
+				}
+			}
+
+			moves.push(directions);
 
 			break;
 	}
@@ -147,12 +406,12 @@ function legalMoves(pieceCoordinate, board, coordinates) {
 board = [
 	['', '', '', '', '', '', '', ''],
 	['', '', '', '', '', '', '', ''],
+	['', '', '', '', 'P', '', '', ''],
+	['', '', 'P', '', '', '', '', ''],
 	['', '', '', '', '', '', '', ''],
-	['', '', '', '', 'N', '', '', ''],
-	['', '', '', '', '', '', '', ''],
-	['', '', '', '', '', '', 'B', ''],
-	['', '', '', '', '', '', '', ''],
-	['', '', '', '', '', '', '', '']
+	['', 'p', '', '', GREEN + 'R' + WHITE, '', GREEN + 'P' + WHITE, ''],
+	['', '', '', '', 'P', '', '', ''],
+	['', '', '', '', 'P', '', '', ''],
 ];
 
 coordinates = {
@@ -186,8 +445,9 @@ let pieceCoordinate, operation, op, drawOffer, turn = "White", validMove = /^[a-
 // move("e2", "e4", board, coordinates);
 // move("f1", "c4", board, coordinates);
 displayBoard(board);
-console.log(legalMoves("g3", board, coordinates));
-console.log(legalMoves("e5", board, coordinates));
+console.log(legalMoves("e3", board, coordinates));
+// console.log(legalMoves("b4", board, coordinates));
+// console.log(legalMoves("e5", board, coordinates));
 // move("f1", "c4", board, coordinates);
 // console.log();
 // legalMoves("c4", board, coordinates);
