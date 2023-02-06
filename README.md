@@ -7,3 +7,7 @@ Dependencies:
   - nodejs
   - alternate-screen
   - readline-sync
+
+### How to run the app ###
+```cd CLI_Chess```
+```node chess.js```
