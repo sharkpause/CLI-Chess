@@ -2740,7 +2740,6 @@ function promote(pawnCoordinate, board, coordinates, piece) {
 	board[coordinates[pawnCoordinate[1]]][coordinates[pawnCoordinate[0]]] = piece;
 }
 
-/*
 let board = [
  	[RED + 'r' + WHITE, RED + 'N' + WHITE, RED + 'B' + WHITE, RED + 'Q' + WHITE, RED + 'k' + WHITE, RED + 'B' + WHITE, RED + 'N' + WHITE, RED + 'r' + WHITE],
 	[RED + 'p' + WHITE, RED + 'p' + WHITE, RED + 'p' + WHITE, RED + 'p' + WHITE, RED + 'p' + WHITE, RED + 'p' + WHITE, RED + 'p' + WHITE, RED + 'p' + WHITE],
@@ -2751,7 +2750,6 @@ let board = [
  	['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
  	['r', 'N', 'B', 'Q', 'k', 'B', 'N', 'r']
 ];
-*/
 
 coordinates = {
 	'a': 0,
@@ -2771,18 +2769,6 @@ coordinates = {
 	7: 1,
 	8: 0
 }
-
-let board = [
-	[RED + 'r' + WHITE, '', '', '', RED + 'k' + WHITE, '', '', RED + 'r' + WHITE],
- 	['', '', '', '', '', '', '', ''],
- 	['', '', '', '', '', '', '', ''],
- 	['', '', 'R', '', '', 'R', '', ''],
- 	['', '', RED + 'R' + WHITE, '', RED + 'R' + WHITE, '', '', ''],
-	['', '', '', '', '', '', '', ''],
-	['', '', '', '', '', '', '', ''],
-	['r', '', '', '', 'k', '', '', 'r'],
-];
-
 
 let running = true;
 let action;
