@@ -30,6 +30,24 @@ let rankCoordinates = {
 	7: 1
 };
 
+let coordinates = {
+	'a': 0,
+	'b': 1,
+	'c': 2,
+	'd': 3,
+	'e': 4,
+	'f': 5,
+	'g': 6,
+	'h': 7,
+	1: 7,
+	2: 6,
+	3: 5,
+	4: 4,
+	5: 3,
+	6: 2,
+	7: 1,
+	8: 0
+}
 
 function displayBoard(board, highlightedSquares=[]) {
 	highlightedSquares[highlightedSquares.indexOf("g1o")] = "g1";
@@ -37,33 +55,39 @@ function displayBoard(board, highlightedSquares=[]) {
 	highlightedSquares[highlightedSquares.indexOf("g8o")] = "g8";
 	highlightedSquares[highlightedSquares.indexOf("b8o")] = "b8";
 
+	let square, squareCoordinate, isWhite;
+
 	for(let rank = 0; rank < board.length; ++rank) {
-		process.stdout.write((8-rank + "\t"));
+		process.stdout.write(8-rank + "\t");
 		for(let file = 0; file < board[rank].length; ++file) {
-			let square = board[rank][file];
+			square = board[rank][file];
+			squareCoordinate = fileCoordinates[file] + rankCoordinates[rank];
+			isWhite = rank % 2 === file % 2;
 
 			if(square !== '') {
-				if(!square.includes(RED)) {
-					if((highlightedSquares.includes(fileCoordinates[file] + rankCoordinates[rank]))) {
-							process.stdout.write(BG_YELLOW + ' ' + BLUE + square + WHITE + ' ');
+				if(square.includes(RED)) {
+					if(highlightedSquares.includes(squareCoordinate)) {
+						process.stdout.write(BG_YELLOW + ' ' + square + WHITE + ' ');
+					} else if(isWhite) {
+						process.stdout.write(BG_WHITE + ' ' + square + WHITE + ' ');
 					} else {
-						if(rank % 2 === file % 2) process.stdout.write(BG_WHITE + ' ' + BLUE + square + WHITE + ' ');
-						else process.stdout.write(BG_BLACK + BLUE + ' ' + square + WHITE + ' ');
+						process.stdout.write(BG_BLACK + ' ' + square + WHITE + ' ');
 					}
 				} else {
-					if(highlightedSquares.includes(fileCoordinates[file] + rankCoordinates[rank])) process.stdout.write(BG_YELLOW + ' ' + square + WHITE + ' ');
-					else {
-						if(rank % 2 === file % 2) process.stdout.write(BG_WHITE + ' ' + square + WHITE + ' ');
-						else process.stdout.write(BG_BLACK + ' ' + square + WHITE + ' ');
+					if(highlightedSquares.includes(squareCoordinate)) {
+						process.stdout.write(BG_YELLOW + ' ' + BLUE + square + WHITE + ' ');
+					} else if(isWhite) {
+						process.stdout.write(BG_WHITE + ' ' + BLUE + square + WHITE + ' ');
+					} else
+						process.stdout.write(BG_BLACK + BLUE + ' ' + square + WHITE + ' ');
 					}
-				}
 			} else {
-				if(rank % 2 !== file % 2) {
-					if(highlightedSquares.includes(fileCoordinates[file] + rankCoordinates[rank])) process.stdout.write(BG_YELLOW +  ' - ');
-					else process.stdout.write(BG_BLACK + ' - ');
+				if(highlightedSquares.includes(squareCoordinate)) {
+					process.stdout.write(BG_YELLOW + ' - ');
+				} else if(isWhite) {
+					process.stdout.write(BG_WHITE + ' - ');
 				} else {
-					if(highlightedSquares.includes(fileCoordinates[file] + rankCoordinates[rank])) process.stdout.write(BG_YELLOW + ' - ');
-					else process.stdout.write(BG_WHITE + ' - ');
+					process.stdout.write(BG_BLACK + ' - ');
 				}
 			}
 			process.stdout.write(RESET);
@@ -74,7 +98,7 @@ function displayBoard(board, highlightedSquares=[]) {
 	console.log(RESET + "\n\n\t a  b  c  d  e  f  g  h");
 }
 
-function move(before, after, board, coordinates) {
+function move(before, after, board) {
 	let enPassant = [];
 
 	let beforeFile = coordinates[before[0]];
@@ -153,7 +177,6 @@ function move(before, after, board, coordinates) {
 
 	board[beforeRank][beforeFile] = '';
 
-
 	if(originPiece === RED + 'p' + WHITE) {
 		if(board[afterRank][afterFile-1] === 'p' || board[afterRank][afterFile-1] === 'P') {
 			enPassant.push([fileCoordinates[afterFile-1] + rankCoordinates[afterRank], fileCoordinates[afterFile] + rankCoordinates[afterRank-1]]);
@@ -163,7 +186,6 @@ function move(before, after, board, coordinates) {
 		}
 	} else if(originPiece === 'p') {
 		if(board[afterRank][afterFile-1] === RED + 'p' + WHITE || board[afterRank][afterFile-1] === RED + 'P' + WHITE) {
-			console.log(fileCoordinates[afterFile-1]);
 			enPassant.push([fileCoordinates[afterFile-1] + rankCoordinates[afterRank], fileCoordinates[afterFile] + rankCoordinates[afterRank+1]]);
 		}
 		if(board[afterRank][afterFile+1] === RED + 'p' + WHITE || board[afterRank][afterFile+1] === RED + 'P' + WHITE) {
@@ -174,28 +196,7 @@ function move(before, after, board, coordinates) {
 	return enPassant;
 }
 
-function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
-	let fileCoordinates = {
-		0: 'a',
-		1: 'b',
-		2: 'c',
-		3: 'd',
-		4: 'e',
-		5: 'f',
-		6: 'g',
-		7: 'h'
-	};
-	let rankCoordinates = {
-		0: 8,
-		1: 7,
-		2: 6,
-		3: 5,
-		4: 4,
-		5: 3,
-		6: 2,
-		7: 1
-	};
-
+function legalMoves(pieceCoordinate, board, enPassant=[]) {
 	let testBoard = JSON.parse(JSON.stringify(board));
 	let directions = [];
 	let file = coordinates[pieceCoordinate[0]];
@@ -203,54 +204,48 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 	let piece = board[rank][file];
 	let moves = [];
 	let kingCoordinate;
-	let testPiece;
+	let testPiece = pieceCoordinate;
+	let color;
+	let moveCoordinates;
 
 	switch(piece) {
 		case RED + 'p' + WHITE:
-			kingCoordinate = kingCoordinates(board, "Black");
-			testPiece = fileCoordinates[file] + rankCoordinates[rank];
+			color = "Black";
+			kingCoordinate = kingCoordinates(board, color);
 
-			if(rank + 2 < 8 && board[rank+2][file] === '' && board[rank+1][file] === '') {
-				if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-					move(testPiece, fileCoordinates[file] + rankCoordinates[rank+2], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
-						moves.push(fileCoordinates[file] + rankCoordinates[rank+2]);
-					}
-				} else {
-					move(testPiece, fileCoordinates[file] + rankCoordinates[rank+2], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
-						moves.push(fileCoordinates[file] + rankCoordinates[rank+2]);
-					}
+			if(rank+2 < 8 && board[rank+2][file] === '' && board[rank+1][file] === '') {
+				moveCoordinates = fileCoordinates[file] + rankCoordinates[rank+2];
+				move(testPiece, moveCoordinates, testBoard);
+				if(inCheck(kingCoordinate, testBoard, color) === false) {
+					moves.push(moveCoordinates);
 				}
 			}
 
 			testBoard = JSON.parse(JSON.stringify(board));
 		case RED + 'P' + WHITE:
-			kingCoordinate = kingCoordinates(board, "Black");
-			testPiece = fileCoordinates[file] + rankCoordinates[rank];
+			color = "Black";
+			kingCoordinate = kingCoordinates(board, color);
 
-			if(rank+1 < 8 && file-1 >= 0 && file+1 < 8) {
-				if(!board[rank+1][file-1].includes(RED) && board[rank+1][file-1] !== '') {
-					if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file-1] + rankCoordinates[rank+1], testBoard, coordinates);
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
-							moves.push(fileCoordinates[file-1] + rankCoordinates[rank+1]);
+			if(rank < 7) {
+				if(file > 0) {
+					if(!board[rank+1][file-1].includes(RED) && board[rank+1][file-1] !== '') {
+						moveCoordinates = fileCoordinates[file-1] + rankCoordinates[rank+1];
+						move(testPiece, moveCoordinates, testBoard);
+						if(inCheck(kingCoordinate, testBoard, color) === false) {
+							moves.push(moveCoordinates);
 						}
-					} else {
-						moves.push(fileCoordinates[file-1] + rankCoordinates[rank+1]);
 					}
 				}
 
 				testBoard = JSON.parse(JSON.stringify(board));
 
-				if(!board[rank+1][file+1].includes(RED) && board[rank+1][file+1] !== '') {
-					if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file+1] + rankCoordinates[rank+1], testBoard, coordinates);
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
-							moves.push(fileCoordinates[file+1] + rankCoordinates[rank+1]);
+				if(file < 7) {
+					if(!board[rank+1][file+1].includes(RED) && board[rank+1][file+1] !== '') {
+						moveCoordinates = fileCoordinates[file+1] + rankCoordinates[rank+1];
+						move(testPiece, moveCoordinates, testBoard);
+						if(inCheck(kingCoordinate, testBoard, color) === false) {
+							moves.push(moveCoordinates);
 						}
-					} else {
-						moves.push(fileCoordinates[file+1] + rankCoordinates[rank+1]);
 					}
 				}
 			}
@@ -258,16 +253,10 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			testBoard = JSON.parse(JSON.stringify(board));
 
 			if(rank+1 < 8 && board[rank+1][file] === '') {
-				if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === true) {
-					move(testPiece, fileCoordinates[file] + rankCoordinates[rank+1], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
-						moves.push(fileCoordinates[file] + rankCoordinates[rank+1]);
-					}
-				} else {
-					move(testPiece, fileCoordinates[file] + rankCoordinates[rank+1], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
-						moves.push(fileCoordinates[file] + rankCoordinates[rank+1]);
-					}
+				moveCoordinates = fileCoordinates[file] + rankCoordinates[rank+1];
+				move(testPiece, moveCoordinates, testBoard);
+				if(inCheck(kingCoordinate, testBoard, color) === false) {
+					moves.push(moveCoordinates);
 				}
 			}
 
@@ -279,50 +268,42 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 
 			break;
 		case 'p':
-			kingCoordinate = kingCoordinates(board, "White");
-			testPiece = fileCoordinates[file] + rankCoordinates[rank];
+			color = "White";
+			kingCoordinate = kingCoordinates(board, color);
 
-			if(rank - 2 >= 0 && board[rank-2][file] === '' && board[rank-1][file] === '') {
-				if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-					move(testPiece, fileCoordinates[file] + rankCoordinates[rank-2], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
-						moves.push(fileCoordinates[file] + rankCoordinates[rank-2]);
-					}
-				} else {
-					move(testPiece, fileCoordinates[file] + rankCoordinates[rank-2], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
-						moves.push(fileCoordinates[file] + rankCoordinates[rank-2]);
-					}
+			if(rank-2 >= 0 && board[rank-2][file] === '' && board[rank-1][file] === '') {
+				moveCoordinates = fileCoordinates[file] + rankCoordinates[rank-2];
+				move(testPiece, moveCoordinates, testBoard);
+				if(inCheck(kingCoordinate, testBoard, color) === false) {
+					moves.push(moveCoordinates);
 				}
 			}
 
 			testBoard = JSON.parse(JSON.stringify(board));
 		case 'P':
-			kingCoordinate = kingCoordinates(board, "White");
-			testPiece = fileCoordinates[file] + rankCoordinates[rank];
+			color = "White";
+			kingCoordinate = kingCoordinates(board, color);
 
-			if(rank-1 >= 0 && file-1 >= 0 && file+1 < 8) {
-				if(board[rank-1][file-1].includes(RED)) {
-					if(inCheck(kingCoordinate, testBoard, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file-1] + rankCoordinates[rank-1], testBoard, coordinates);
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
-							moves.push(fileCoordinates[file-1] + rankCoordinates[rank-1]);
+			if(rank > 0) {
+				if(file > 0) {
+					if(board[rank-1][file-1].includes(RED)) {
+						moveCoordinates = fileCoordinates[file-1] + rankCoordinates[rank-1];
+						move(testPiece, moveCoordinates, testBoard);
+						if(inCheck(kingCoordinate, testBoard, color) === false) {
+							moves.push(moveCoordinates);
 						}
-					} else {
-						moves.push(fileCoordinates[file-1] + rankCoordinates[rank-1]);
 					}
 				}
 
 				testBoard = JSON.parse(JSON.stringify(board));
 
-				if(board[rank-1][file+1].includes(RED)) {
-					if(inCheck(kingCoordinate, testBoard, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file+1] + rankCoordinates[rank-1], testBoard, coordinates);
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
-							moves.push(fileCoordinates[file+1] + rankCoordinates[rank-1]);
+				if(file < 7) {
+					if(board[rank-1][file+1].includes(RED)) {
+						moveCoordinates = fileCoordinates[file+1] + rankCoordinates[rank-1];
+						move(testPiece, moveCoordinates, testBoard);
+						if(inCheck(kingCoordinate, testBoard, color) === false) {
+							moves.push(moveCoordinates);
 						}
-					} else {
-						moves.push(fileCoordinates[file+1] + rankCoordinates[rank-1]);
 					}
 				}
 			}
@@ -330,16 +311,10 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			testBoard = JSON.parse(JSON.stringify(board));
 
 			if(rank-1 >= 0 && board[rank-1][file] === '') {
-				if(inCheck(kingCoordinate, testBoard, coordinates, "White") === true) {
-					move(testPiece, fileCoordinates[file] + rankCoordinates[rank-1], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
-						moves.push(fileCoordinates[file] + rankCoordinates[rank-1]);
-					}
-				} else {
-					move(testPiece, fileCoordinates[file] + rankCoordinates[rank-1], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
-						moves.push(fileCoordinates[file] + rankCoordinates[rank-1]);
-					}
+				moveCoordinates = fileCoordinates[file] + rankCoordinates[rank-1];
+				move(testPiece, moveCoordinates, testBoard);
+				if(inCheck(kingCoordinate, testBoard, color) === false) {
+					moves.push(moveCoordinates);
 				}
 			}
 
@@ -351,39 +326,39 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 
 			break;
 		case RED + 'B' + WHITE:
-			kingCoordinate = kingCoordinates(testBoard, "Black")
-			testPiece = fileCoordinates[file] + rankCoordinates[rank];
+			color = "Black";
+			kingCoordinate = kingCoordinates(testBoard, color)
 
 			// top-left
 			for(let i = 1; file-i >= 0 && rank-i >= 0; ++i) {
 				if(board[rank-i][file-i] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard);
 						testPiece = fileCoordinates[file-i] + rankCoordinates[rank-i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank-i]);
 							break;
 						}
 						
 					} else {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank-i]);
 						} else {
 							break;
 						}
 					}
 				} else if(!board[rank-i][file-i].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard);
 						testPiece = fileCoordinates[file-i] + rankCoordinates[rank-i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank-i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank-i]);
 						}
 						break;
@@ -401,32 +376,32 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			// top-right
 			for(let i = 1; file+i < 8 && rank-i >= 0; ++i) {
 				if(board[rank-i][file+i] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard);
 						testPiece = fileCoordinates[file+i] + rankCoordinates[rank-i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank-i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank-i]);
 						} else {
 							break;
 						}
 					}
 				} else if(!board[rank-i][file+i].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard);
 						testPiece = fileCoordinates[file+i] + rankCoordinates[rank-i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank-i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank-i]);
 						}
 						break;
@@ -442,35 +417,34 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			testPiece = fileCoordinates[file] + rankCoordinates[rank];
 
 			// bottom-left
-			for(let i = 1; file-i >= 0 && rank+i < 8; ++i) {
+			for(let i = 1; file-i >= 0 && rank+i < 8; ++i) { //TODO: optimize this shit
 				if(board[rank+i][file-i] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, color) === true) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard);
 						testPiece = fileCoordinates[file-i] + rankCoordinates[rank+i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, color) === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank+i]);
 							break;
 						}
-						
 					} else {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank+i]);
 						} else {
 							break;
 						}
 					}
 				} else if(!board[rank+i][file-i].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard);
 						testPiece = fileCoordinates[file-i] + rankCoordinates[rank+i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank+i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank+i]);
 						}
 						break;
@@ -488,33 +462,33 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			// bottom-right
 			for(let i = 1; file+i < 8 && rank+i < 8; ++i) {
 				if(board[rank+i][file+i] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard);
 						testPiece = fileCoordinates[file+i] + rankCoordinates[rank+i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank+i]);
 							break;
 						}
 						
 					} else {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank+i]);
 						} else {
 							break;
 						}
 					}
 				} else if(!board[rank+i][file+i].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard);
 						testPiece = fileCoordinates[file+i] + rankCoordinates[rank+i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank+i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank+i]);
 						}
 						break;
@@ -534,32 +508,32 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			// top-left
 			for(let i = 1; file-i >= 0 && rank-i >= 0; ++i) {
 				if(board[rank-i][file-i].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard);
 						testPiece = fileCoordinates[file-i] + rankCoordinates[rank-i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank-i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank-i]);
 						}
 						break;
 					}
 				} else if(board[rank-i][file-i] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard);
 						testPiece = fileCoordinates[file-i] + rankCoordinates[rank-i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank-i]);
 							break;
 						}
 						
 					} else {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank-i]);
 						} else {
 							break;
@@ -576,31 +550,31 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			// top-right
 			for(let i = 1; file+i < 8 && rank-i >= 0; ++i) {
 				if(board[rank-i][file+i].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard);
 						testPiece = fileCoordinates[file+i] + rankCoordinates[rank-i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank-i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank-i]);
 						}
 						break;
 					}
 				} else if(board[rank-i][file+i] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard);
 						testPiece = fileCoordinates[file+i] + rankCoordinates[rank-i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank-i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank-i]);
 						} else {
 							break;
@@ -617,32 +591,32 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			// bottom-left
 			for(let i = 1; file-i >= 0 && rank+i < 8; ++i) {
 				if(board[rank+i][file-i].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard);
 						testPiece = fileCoordinates[file-i] + rankCoordinates[rank+i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank+i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank+i]);
 						}
 						break;
 					}
 				} else if(board[rank+i][file-i] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard);
 						testPiece = fileCoordinates[file-i] + rankCoordinates[rank+i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank+i]);
 							break;
 						}
 						
 					} else {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank+i]);
 						} else {
 							break;
@@ -659,32 +633,32 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			// bottom-right
 			for(let i = 1; file+i < 8 && rank+i < 8; ++i) {
 				if(board[rank+i][file+i].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard);
 						testPiece = fileCoordinates[file+i] + rankCoordinates[rank+i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank+i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank+i]);
 						}
 						break;
 					}
 				} else if(board[rank+i][file+i] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard);
 						testPiece = fileCoordinates[file+i] + rankCoordinates[rank+i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank+i]);
 							break;
 						}
 						
 					} else {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank+i]);
 						} else {
 							break;
@@ -701,14 +675,14 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			testPiece = fileCoordinates[file] + rankCoordinates[rank];
 
 			if(rank-2 >= 0 && file-1 >= 0 && (board[rank-2][file-1] === '' || !board[rank-2][file-1].includes(RED))) {
-				if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === true) {
-					move(testPiece, fileCoordinates[file-1] + rankCoordinates[rank-2], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+				if(inCheck(kingCoordinate, testBoard, "Black") === true) {
+					move(testPiece, fileCoordinates[file-1] + rankCoordinates[rank-2], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 						moves.push(fileCoordinates[file-1] + rankCoordinates[rank-2]);
 					}
 				} else {
-					move(testPiece, fileCoordinates[file-1] + rankCoordinates[rank-2], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+					move(testPiece, fileCoordinates[file-1] + rankCoordinates[rank-2], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 						moves.push(fileCoordinates[file-1] + rankCoordinates[rank-2]);
 					}
 				}
@@ -717,14 +691,14 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			testBoard = JSON.parse(JSON.stringify(board));
 
 			if(rank-2 >= 0 && file+1 < 8 && (board[rank-2][file+1] === '' || !board[rank-2][file+1].includes(RED))) {
-				if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === true) {
-					move(testPiece, fileCoordinates[file+1] + rankCoordinates[rank-2], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+				if(inCheck(kingCoordinate, testBoard, "Black") === true) {
+					move(testPiece, fileCoordinates[file+1] + rankCoordinates[rank-2], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 						moves.push(fileCoordinates[file+1] + rankCoordinates[rank-2]);
 					}
 				} else {
-					move(testPiece, fileCoordinates[file+1] + rankCoordinates[rank-2], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+					move(testPiece, fileCoordinates[file+1] + rankCoordinates[rank-2], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 						moves.push(fileCoordinates[file+1] + rankCoordinates[rank-2]);
 					}
 				}
@@ -733,14 +707,14 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			testBoard = JSON.parse(JSON.stringify(board));
 
 			if(rank+2 < 8 && file-1 >= 0 && (board[rank+2][file-1] === '' || !board[rank+2][file-1].includes(RED))) {
-				if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === true) {
-					move(testPiece, fileCoordinates[file-1] + rankCoordinates[rank+2], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+				if(inCheck(kingCoordinate, testBoard, "Black") === true) {
+					move(testPiece, fileCoordinates[file-1] + rankCoordinates[rank+2], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 						moves.push(fileCoordinates[file-1] + rankCoordinates[rank+2]);
 					}
 				} else {
-					move(testPiece, fileCoordinates[file-1] + rankCoordinates[rank+2], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+					move(testPiece, fileCoordinates[file-1] + rankCoordinates[rank+2], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 						moves.push(fileCoordinates[file-1] + rankCoordinates[rank+2]);
 					}
 				}
@@ -749,14 +723,14 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			testBoard = JSON.parse(JSON.stringify(board));
 
 			if(rank+2 < 8 && file+1 < 8 && (board[rank+2][file+1] === '' || !board[rank+2][file+1].includes(RED))) {
-				if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === true) {
-					move(testPiece, fileCoordinates[file+1] + rankCoordinates[rank+2], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+				if(inCheck(kingCoordinate, testBoard, "Black") === true) {
+					move(testPiece, fileCoordinates[file+1] + rankCoordinates[rank+2], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 						moves.push(fileCoordinates[file+1] + rankCoordinates[rank+2]);
 					}
 				} else {
-					move(testPiece, fileCoordinates[file+1] + rankCoordinates[rank+2], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+					move(testPiece, fileCoordinates[file+1] + rankCoordinates[rank+2], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 						moves.push(fileCoordinates[file+1] + rankCoordinates[rank+2]);
 					}
 				}
@@ -765,14 +739,14 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			testBoard = JSON.parse(JSON.stringify(board));
 
 			if(file-2 >= 0 && rank-1 >= 0 && (board[rank-1][file-2] === '' || !board[rank-1][file-2].includes(RED))) {
-				if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === true) {
-					move(testPiece, fileCoordinates[file-2] + rankCoordinates[rank-1], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+				if(inCheck(kingCoordinate, testBoard, "Black") === true) {
+					move(testPiece, fileCoordinates[file-2] + rankCoordinates[rank-1], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 						moves.push(fileCoordinates[file-2] + rankCoordinates[rank-1]);
 					}
 				} else {
-					move(testPiece, fileCoordinates[file-2] + rankCoordinates[rank-1], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+					move(testPiece, fileCoordinates[file-2] + rankCoordinates[rank-1], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 						moves.push(fileCoordinates[file-2] + rankCoordinates[rank-1]);
 					}
 				}
@@ -781,14 +755,14 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			testBoard = JSON.parse(JSON.stringify(board));
 
 			if(file-2 >= 0 && rank+1 < 8 && (board[rank+1][file-2] === '' || !board[rank+1][file-2].includes(RED))) {
-				if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === true) {
-					move(testPiece, fileCoordinates[file-2] + rankCoordinates[rank+1], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+				if(inCheck(kingCoordinate, testBoard, "Black") === true) {
+					move(testPiece, fileCoordinates[file-2] + rankCoordinates[rank+1], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 						moves.push(fileCoordinates[file-2] + rankCoordinates[rank+1]);
 					}
 				} else {
-					move(testPiece, fileCoordinates[file-2] + rankCoordinates[rank+1], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+					move(testPiece, fileCoordinates[file-2] + rankCoordinates[rank+1], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 						moves.push(fileCoordinates[file-2] + rankCoordinates[rank+1]);
 					}
 				}
@@ -797,14 +771,14 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			testBoard = JSON.parse(JSON.stringify(board));
 
 			if(file+2 < 8 && rank-1 >= 0 && (board[rank-1][file+2] === '' || !board[rank-1][file+2].includes(RED))) {
-				if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === true) {
-					move(testPiece, fileCoordinates[file+2] + rankCoordinates[rank-1], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+				if(inCheck(kingCoordinate, testBoard, "Black") === true) {
+					move(testPiece, fileCoordinates[file+2] + rankCoordinates[rank-1], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 						moves.push(fileCoordinates[file+2] + rankCoordinates[rank-1]);
 					}
 				} else {
-					move(testPiece, fileCoordinates[file+2] + rankCoordinates[rank-1], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+					move(testPiece, fileCoordinates[file+2] + rankCoordinates[rank-1], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 						moves.push(fileCoordinates[file+2] + rankCoordinates[rank-1]);
 					}
 				}
@@ -813,14 +787,14 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			testBoard = JSON.parse(JSON.stringify(board));
 
 			if(file+2 < 8 && rank+1 < 8 && (board[rank+1][file+2] === '' || !board[rank+1][file+2].includes(RED))) {
-				if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === true) {
-					move(testPiece, fileCoordinates[file+2] + rankCoordinates[rank+1], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+				if(inCheck(kingCoordinate, testBoard, "Black") === true) {
+					move(testPiece, fileCoordinates[file+2] + rankCoordinates[rank+1], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 						moves.push(fileCoordinates[file+2] + rankCoordinates[rank+1]);
 					}
 				} else {
-					move(testPiece, fileCoordinates[file+2] + rankCoordinates[rank+1], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+					move(testPiece, fileCoordinates[file+2] + rankCoordinates[rank+1], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 						moves.push(fileCoordinates[file+2] + rankCoordinates[rank+1]);
 					}
 				}
@@ -832,14 +806,14 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			testPiece = fileCoordinates[file] + rankCoordinates[rank];
 
 			if(rank-2 >= 0 && file-1 >= 0 && (board[rank-2][file-1] === '' || board[rank-2][file-1].includes(RED))) {
-				if(inCheck(kingCoordinate, testBoard, coordinates, "White") === true) {
-					move(testPiece, fileCoordinates[file-1] + rankCoordinates[rank-2], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+				if(inCheck(kingCoordinate, testBoard, "White") === true) {
+					move(testPiece, fileCoordinates[file-1] + rankCoordinates[rank-2], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "White") === false) {
 						moves.push(fileCoordinates[file-1] + rankCoordinates[rank-2]);
 					}
 				} else {
-					move(testPiece, fileCoordinates[file-1] + rankCoordinates[rank-2], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+					move(testPiece, fileCoordinates[file-1] + rankCoordinates[rank-2], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "White") === false) {
 						moves.push(fileCoordinates[file-1] + rankCoordinates[rank-2]);
 					}
 				}
@@ -848,14 +822,14 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			testBoard = JSON.parse(JSON.stringify(board));
 
 			if(rank-2 >= 0 && file+1 < 8 && (board[rank-2][file+1] === '' || board[rank-2][file+1].includes(RED))) {
-				if(inCheck(kingCoordinate, testBoard, coordinates, "White") === true) {
-					move(testPiece, fileCoordinates[file+1] + rankCoordinates[rank-2], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+				if(inCheck(kingCoordinate, testBoard, "White") === true) {
+					move(testPiece, fileCoordinates[file+1] + rankCoordinates[rank-2], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "White") === false) {
 						moves.push(fileCoordinates[file+1] + rankCoordinates[rank-2]);
 					}
 				} else {
-					move(testPiece, fileCoordinates[file+1] + rankCoordinates[rank-2], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+					move(testPiece, fileCoordinates[file+1] + rankCoordinates[rank-2], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "White") === false) {
 						moves.push(fileCoordinates[file+1] + rankCoordinates[rank-2]);
 					}
 				}
@@ -864,14 +838,14 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			testBoard = JSON.parse(JSON.stringify(board));
 
 			if(rank+2 < 8 && file-1 >= 0 && (board[rank+2][file-1] === '' || board[rank+2][file-1].includes(RED))) {
-				if(inCheck(kingCoordinate, testBoard, coordinates, "White") === true) {
-					move(testPiece, fileCoordinates[file-1] + rankCoordinates[rank+2], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+				if(inCheck(kingCoordinate, testBoard, "White") === true) {
+					move(testPiece, fileCoordinates[file-1] + rankCoordinates[rank+2], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "White") === false) {
 						moves.push(fileCoordinates[file-1] + rankCoordinates[rank+2]);
 					}
 				} else {
-					move(testPiece, fileCoordinates[file-1] + rankCoordinates[rank+2], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+					move(testPiece, fileCoordinates[file-1] + rankCoordinates[rank+2], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "White") === false) {
 						moves.push(fileCoordinates[file-1] + rankCoordinates[rank+2]);
 					}
 				}
@@ -880,14 +854,14 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			testBoard = JSON.parse(JSON.stringify(board));
 
 			if(rank+2 < 8 && file+1 < 8 && (board[rank+2][file+1] === '' || board[rank+2][file+1].includes(RED))) {
-				if(inCheck(kingCoordinate, testBoard, coordinates, "White") === true) {
-					move(testPiece, fileCoordinates[file+1] + rankCoordinates[rank+2], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+				if(inCheck(kingCoordinate, testBoard, "White") === true) {
+					move(testPiece, fileCoordinates[file+1] + rankCoordinates[rank+2], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "White") === false) {
 						moves.push(fileCoordinates[file+1] + rankCoordinates[rank+2]);
 					}
 				} else {
-					move(testPiece, fileCoordinates[file+1] + rankCoordinates[rank+2], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+					move(testPiece, fileCoordinates[file+1] + rankCoordinates[rank+2], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "White") === false) {
 						moves.push(fileCoordinates[file+1] + rankCoordinates[rank+2]);
 					}
 				}
@@ -896,14 +870,14 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			testBoard = JSON.parse(JSON.stringify(board));
 
 			if(file-2 >= 0 && rank-1 >= 0 && (board[rank-1][file-2] === '' || board[rank-1][file-2].includes(RED))) {
-				if(inCheck(kingCoordinate, testBoard, coordinates, "White") === true) {
-					move(testPiece, fileCoordinates[file-2] + rankCoordinates[rank-1], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+				if(inCheck(kingCoordinate, testBoard, "White") === true) {
+					move(testPiece, fileCoordinates[file-2] + rankCoordinates[rank-1], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "White") === false) {
 						moves.push(fileCoordinates[file-2] + rankCoordinates[rank-1]);
 					}
 				} else {
-					move(testPiece, fileCoordinates[file-2] + rankCoordinates[rank-1], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+					move(testPiece, fileCoordinates[file-2] + rankCoordinates[rank-1], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "White") === false) {
 						moves.push(fileCoordinates[file-2] + rankCoordinates[rank-1]);
 					}
 				}
@@ -912,14 +886,14 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			testBoard = JSON.parse(JSON.stringify(board));
 
 			if(file-2 >= 0 && rank+1 < 8 && (board[rank+1][file-2] === '' || board[rank+1][file-2].includes(RED))) {
-				if(inCheck(kingCoordinate, testBoard, coordinates, "White") === true) {
-					move(testPiece, fileCoordinates[file-2] + rankCoordinates[rank+1], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+				if(inCheck(kingCoordinate, testBoard, "White") === true) {
+					move(testPiece, fileCoordinates[file-2] + rankCoordinates[rank+1], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "White") === false) {
 						moves.push(fileCoordinates[file-2] + rankCoordinates[rank+1]);
 					}
 				} else {
-					move(testPiece, fileCoordinates[file-2] + rankCoordinates[rank+1], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+					move(testPiece, fileCoordinates[file-2] + rankCoordinates[rank+1], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "White") === false) {
 						moves.push(fileCoordinates[file-2] + rankCoordinates[rank+1]);
 					}
 				}
@@ -928,14 +902,14 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			testBoard = JSON.parse(JSON.stringify(board));
 
 			if(file+2 < 8 && rank-1 >= 0 && (board[rank-1][file+2] === '' || board[rank-1][file+2].includes(RED))) {
-				if(inCheck(kingCoordinate, testBoard, coordinates, "White") === true) {
-					move(testPiece, fileCoordinates[file+2] + rankCoordinates[rank-1], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+				if(inCheck(kingCoordinate, testBoard, "White") === true) {
+					move(testPiece, fileCoordinates[file+2] + rankCoordinates[rank-1], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "White") === false) {
 						moves.push(fileCoordinates[file+2] + rankCoordinates[rank-1]);
 					}
 				} else {
-					move(testPiece, fileCoordinates[file+2] + rankCoordinates[rank-1], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+					move(testPiece, fileCoordinates[file+2] + rankCoordinates[rank-1], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "White") === false) {
 						moves.push(fileCoordinates[file+2] + rankCoordinates[rank-1]);
 					}
 				}
@@ -944,14 +918,14 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			testBoard = JSON.parse(JSON.stringify(board));
 
 			if(file+2 < 8 && rank+1 < 8 && (board[rank+1][file+2] === '' || board[rank+1][file+2].includes(RED))) {
-				if(inCheck(kingCoordinate, testBoard, coordinates, "White") === true) {
-					move(testPiece, fileCoordinates[file+2] + rankCoordinates[rank+1], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+				if(inCheck(kingCoordinate, testBoard, "White") === true) {
+					move(testPiece, fileCoordinates[file+2] + rankCoordinates[rank+1], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "White") === false) {
 						moves.push(fileCoordinates[file+2] + rankCoordinates[rank+1]);
 					}
 				} else {
-					move(testPiece, fileCoordinates[file+2] + rankCoordinates[rank+1], testBoard, coordinates);
-					if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+					move(testPiece, fileCoordinates[file+2] + rankCoordinates[rank+1], testBoard);
+					if(inCheck(kingCoordinate, testBoard, "White") === false) {
 						moves.push(fileCoordinates[file+2] + rankCoordinates[rank+1]);
 					}
 				}
@@ -966,32 +940,32 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			// up
 			for(let i = 1; rank-i >= 0; ++i) {
 				if(board[rank-i][file] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard);
 						testPiece = fileCoordinates[file] + rankCoordinates[rank-i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank-i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank-i]);
 						} else {
 							break;
 						}
 					}
 				} else if(!board[rank-i][file].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard);
 						testPiece = fileCoordinates[file] + rankCoordinates[rank-i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank-i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank-i]);
 						}
 						break;
@@ -1009,32 +983,32 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			// down
 			for(let i = 1; rank+i < 8; ++i) {
 				if(board[rank+i][file] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard);
 						testPiece = fileCoordinates[file] + rankCoordinates[rank+i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank+i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank+i]);
 						} else {
 							break;
 						}
 					}
 				} else if(!board[rank+i][file].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard);
 						testPiece = fileCoordinates[file] + rankCoordinates[rank+i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank+i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank+i]);
 						}
 						break;
@@ -1052,32 +1026,32 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			// left
 			for(let i = 1; file-i >= 0; ++i) {
 				if(board[rank][file-i] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard);
 						testPiece = fileCoordinates[file-i] + rankCoordinates[rank];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank]);
 						} else {
 							break;
 						}
 					}
 				} else if(!board[rank][file-i].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard);
 						testPiece = fileCoordinates[file-i] + rankCoordinates[rank];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank]);
 						}
 						break;
@@ -1095,32 +1069,32 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			// right
 			for(let i = 1; file+i < 8; ++i) {
 				if(board[rank][file+i] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard);
 						testPiece = fileCoordinates[file+i] + rankCoordinates[rank];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank]);
 						} else {
 							break;
 						}
 					}
 				} else if(!board[rank][file+i].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard);
 						testPiece = fileCoordinates[file+i] + rankCoordinates[rank];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank]);
 						}
 						break;
@@ -1141,31 +1115,31 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			// up
 			for(let i = 1; rank-i >= 0; ++i) {
 				if(board[rank-i][file].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard);
 						testPiece = fileCoordinates[file] + rankCoordinates[rank-i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank-i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank-i]);
 						}
 						break;
 					}
 				} else if(board[rank-i][file] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard);
 						testPiece = fileCoordinates[file] + rankCoordinates[rank-i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank-i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank-i]);
 						} else {
 							break;
@@ -1184,32 +1158,32 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			// down
 			for(let i = 1; rank+i < 8; ++i) {
 				if(board[rank+i][file].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard);
 						testPiece = fileCoordinates[file] + rankCoordinates[rank+i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank+i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank+i]);
 						}
 						break;
 					}
 				} else if(board[rank+i][file] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard);
 						testPiece = fileCoordinates[file] + rankCoordinates[rank+i];
 						
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank+i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank+i]);
 						} else {
 							break;
@@ -1228,31 +1202,31 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			// left
 			for(let i = 1; file-i >= 0; ++i) {
 				if(board[rank][file-i].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard);
 						testPiece = fileCoordinates[file-i] + rankCoordinates[rank];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank]);
 						}
 						break;
 					}
 				} else if(board[rank][file-i] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard);
 						testPiece = fileCoordinates[file-i] + rankCoordinates[rank];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank]);
 						} else {
 							break;
@@ -1271,31 +1245,31 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			// right
 			for(let i = 1; file+i < 8; ++i) {
 				if(board[rank][file+i].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard);
 						testPiece = fileCoordinates[file+i] + rankCoordinates[rank];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank]);
 						}
 						break;
 					}
 				} else if(board[rank][file+i] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard);
 						testPiece = fileCoordinates[file+i] + rankCoordinates[rank];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank]);
 						} else {
 							break;
@@ -1316,33 +1290,33 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			// top-left
 			for(let i = 1; file-i >= 0 && rank-i >= 0; ++i) {
 				if(board[rank-i][file-i] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard);
 						testPiece = fileCoordinates[file-i] + rankCoordinates[rank-i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank-i]);
 							break;
 						}
 						
 					} else {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank-i]);
 						} else {
 							break;
 						}
 					}
 				} else if(!board[rank-i][file-i].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard);
 						testPiece = fileCoordinates[file-i] + rankCoordinates[rank-i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank-i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank-i]);
 						}
 						break;
@@ -1358,32 +1332,32 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			// top-right
 			for(let i = 1; file+i < 8 && rank-i >= 0; ++i) {
 				if(board[rank-i][file+i] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard);
 						testPiece = fileCoordinates[file+i] + rankCoordinates[rank-i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank-i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank-i]);
 						} else {
 							break;
 						}
 					}
 				} else if(!board[rank-i][file+i].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard);
 						testPiece = fileCoordinates[file+i] + rankCoordinates[rank-i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank-i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank-i]);
 						}
 						break;
@@ -1399,33 +1373,33 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			// bottom-left
 			for(let i = 1; file-i >= 0 && rank+i < 8; ++i) {
 				if(board[rank+i][file-i] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard);
 						testPiece = fileCoordinates[file-i] + rankCoordinates[rank+i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank+i]);
 							break;
 						}
 						
 					} else {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank+i]);
 						} else {
 							break;
 						}
 					}
 				} else if(!board[rank+i][file-i].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard);
 						testPiece = fileCoordinates[file-i] + rankCoordinates[rank+i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank+i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank+i]);
 						}
 						break;
@@ -1441,33 +1415,33 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			// bottom-right
 			for(let i = 1; file+i < 8 && rank+i < 8; ++i) {
 				if(board[rank+i][file+i] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard);
 						testPiece = fileCoordinates[file+i] + rankCoordinates[rank+i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank+i]);
 							break;
 						}
 						
 					} else {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank+i]);
 						} else {
 							break;
 						}
 					}
 				} else if(!board[rank+i][file+i].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard);
 						testPiece = fileCoordinates[file+i] + rankCoordinates[rank+i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank+i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank+i]);
 						}
 						break;
@@ -1483,32 +1457,32 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			// up
 			for(let i = 1; rank-i >= 0; ++i) {
 				if(board[rank-i][file] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard);
 						testPiece = fileCoordinates[file] + rankCoordinates[rank-i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank-i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank-i]);
 						} else {
 							break;
 						}
 					}
 				} else if(!board[rank-i][file].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard);
 						testPiece = fileCoordinates[file] + rankCoordinates[rank-i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank-i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank-i]);
 						}
 						break;
@@ -1524,32 +1498,32 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			// down
 			for(let i = 1; rank+i < 8; ++i) {
 				if(board[rank+i][file] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard);
 						testPiece = fileCoordinates[file] + rankCoordinates[rank+i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank+i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank+i]);
 						} else {
 							break;
 						}
 					}
 				} else if(!board[rank+i][file].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard);
 						testPiece = fileCoordinates[file] + rankCoordinates[rank+i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank+i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank+i]);
 						}
 						break;
@@ -1565,32 +1539,32 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			// left
 			for(let i = 1; file-i >= 0; ++i) {
 				if(board[rank][file-i] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard);
 						testPiece = fileCoordinates[file-i] + rankCoordinates[rank];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank]);
 						} else {
 							break;
 						}
 					}
 				} else if(!board[rank][file-i].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard);
 						testPiece = fileCoordinates[file-i] + rankCoordinates[rank];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank]);
 						}
 						break;
@@ -1606,32 +1580,32 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			// right
 			for(let i = 1; file+i < 8; ++i) {
 				if(board[rank][file+i] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard);
 						testPiece = fileCoordinates[file+i] + rankCoordinates[rank];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank]);
 						} else {
 							break;
 						}
 					}
 				} else if(!board[rank][file+i].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "Black") === true) {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "Black") === true) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard);
 						testPiece = fileCoordinates[file+i] + rankCoordinates[rank];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "Black") === false) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "Black") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank]);
 						}
 						break;
@@ -1651,33 +1625,33 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			// top-left
 			for(let i = 1; file-i >= 0 && rank-i >= 0; ++i) {
 				if(board[rank-i][file-i].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
+					if(inCheck(kingCoordinate, board, "White") === true) {
 						console.log('a');
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard, coordinates);
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard);
 						testPiece = fileCoordinates[file-i] + rankCoordinates[rank-i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank-i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank-i]);
 						}
 						break;
 					}
 				} else if(board[rank-i][file-i] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard);
 						testPiece = fileCoordinates[file-i] + rankCoordinates[rank-i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank-i]);
 							break;
 						}
 						
 					} else {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank-i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank-i]);
 						} else {
 							break;
@@ -1694,31 +1668,31 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			// top-right
 			for(let i = 1; file+i < 8 && rank-i >= 0; ++i) {
 				if(board[rank-i][file+i].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard);
 						testPiece = fileCoordinates[file+i] + rankCoordinates[rank-i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank-i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank-i]);
 						}
 						break;
 					}
 				} else if(board[rank-i][file+i] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard);
 						testPiece = fileCoordinates[file+i] + rankCoordinates[rank-i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank-i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank-i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank-i]);
 						} else {
 							break;
@@ -1735,32 +1709,32 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			// bottom-left
 			for(let i = 1; file-i >= 0 && rank+i < 8; ++i) {
 				if(board[rank+i][file-i].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard);
 						testPiece = fileCoordinates[file-i] + rankCoordinates[rank+i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank+i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank+i]);
 						}
 						break;
 					}
 				} else if(board[rank+i][file-i] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard);
 						testPiece = fileCoordinates[file-i] + rankCoordinates[rank+i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank+i]);
 							break;
 						}
 						
 					} else {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank+i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank+i]);
 						} else {
 							break;
@@ -1777,32 +1751,32 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			// bottom-right
 			for(let i = 1; file+i < 8 && rank+i < 8; ++i) {
 				if(board[rank+i][file+i].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard);
 						testPiece = fileCoordinates[file+i] + rankCoordinates[rank+i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank+i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank+i]);
 						}
 						break;
 					}
 				} else if(board[rank+i][file+i] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard);
 						testPiece = fileCoordinates[file+i] + rankCoordinates[rank+i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank+i]);
 							break;
 						}
 						
 					} else {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank+i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank+i]);
 						} else {
 							break;
@@ -1819,31 +1793,31 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			// up
 			for(let i = 1; rank-i >= 0; ++i) {
 				if(board[rank-i][file].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard);
 						testPiece = fileCoordinates[file] + rankCoordinates[rank-i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank-i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank-i]);
 						}
 						break;
 					}
 				} else if(board[rank-i][file] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard);
 						testPiece = fileCoordinates[file] + rankCoordinates[rank-i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank-i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank-i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank-i]);
 						} else {
 							break;
@@ -1860,32 +1834,32 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			// down
 			for(let i = 1; rank+i < 8; ++i) {
 				if(board[rank+i][file].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard);
 						testPiece = fileCoordinates[file] + rankCoordinates[rank+i];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank+i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank+i]);
 						}
 						break;
 					}
 				} else if(board[rank+i][file] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard);
 						testPiece = fileCoordinates[file] + rankCoordinates[rank+i];
 						
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank+i]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file] + rankCoordinates[rank+i], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file] + rankCoordinates[rank+i]);
 						} else {
 							break;
@@ -1902,31 +1876,31 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			// left
 			for(let i = 1; file-i >= 0; ++i) {
 				if(board[rank][file-i].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard);
 						testPiece = fileCoordinates[file-i] + rankCoordinates[rank];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank]);
 						}
 						break;
 					}
 				} else if(board[rank][file-i] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard);
 						testPiece = fileCoordinates[file-i] + rankCoordinates[rank];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file-i] + rankCoordinates[rank], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file-i] + rankCoordinates[rank]);
 						} else {
 							break;
@@ -1943,31 +1917,31 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			// right
 			for(let i = 1; file+i < 8; ++i) {
 				if(board[rank][file+i].includes(RED)) {
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard);
 						testPiece = fileCoordinates[file+i] + rankCoordinates[rank];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank]);
 						}
 						break;
 					}
 				} else if(board[rank][file+i] === ''){
-					if(inCheck(kingCoordinate, board, coordinates, "White") === true) {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard, coordinates);
+					if(inCheck(kingCoordinate, board, "White") === true) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard);
 						testPiece = fileCoordinates[file+i] + rankCoordinates[rank];
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank]);
 							break;
 						}
 					} else {
-						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard, coordinates)
-						if(inCheck(kingCoordinate, testBoard, coordinates, "White") === false) {
+						move(testPiece, fileCoordinates[file+i] + rankCoordinates[rank], testBoard)
+						if(inCheck(kingCoordinate, testBoard, "White") === false) {
 							moves.push(fileCoordinates[file+i] + rankCoordinates[rank]);
 						} else {
 							break;
@@ -1981,23 +1955,23 @@ function legalMoves(pieceCoordinate, board, coordinates, enPassant=[]) {
 			break;
 		case RED + 'k' + WHITE:
 		case RED + 'K' + WHITE:
-			moves = kingMoves(kingCoordinates(board, "Black"), board, coordinates);
+			moves = kingMoves(kingCoordinates(board, "Black"), board);
 
 			break;
 		case 'k':
 		case 'K':
-			moves = kingMoves(kingCoordinates(board, "White"), board, coordinates);
+			moves = kingMoves(kingCoordinates(board, "White"), board);
 	}
 
 	return moves;
 }
 
-function inCheck(kingCoordinate, board, coordinates, color) {
+function inCheck(kingCoordinate, board, color) {
 	if(color === "White") {
 		for(let rank = 0; rank < board.length; ++rank) {
 			for(let file = 0; file < board[rank].length; ++file) {
 				if(board[rank][file].includes(RED) && board[rank][file] !== RED + 'K' + WHITE) {
-					let pieceMoves = checkMoves(fileCoordinates[file] + rankCoordinates[rank], board, coordinates);
+					let pieceMoves = checkMoves(fileCoordinates[file] + rankCoordinates[rank], board);
 					for(let i = 0; i < pieceMoves.length; ++i) {
 						if(pieceMoves[i].includes(kingCoordinate)) return true;
 					}
@@ -2008,7 +1982,7 @@ function inCheck(kingCoordinate, board, coordinates, color) {
 		for(let rank = 0; rank < board.length; ++rank) {
 			for(let file = 0; file < board[rank].length; ++file) {
 				if((!board[rank][file].includes(RED) && board[rank][file] !== '') && board[rank][file] !== RED + 'K' + WHITE) {
-					let pieceMoves = checkMoves(fileCoordinates[file] + rankCoordinates[rank], board, coordinates);
+					let pieceMoves = checkMoves(fileCoordinates[file] + rankCoordinates[rank], board);
 					for(let i = 0; i < pieceMoves.length; ++i) {
 						if(pieceMoves[i].includes(kingCoordinate)) return true;
 					}
@@ -2040,7 +2014,7 @@ function kingCoordinates(board, color) {
 	}
 }
 
-function kingMoves(kingCoordinate, board, coordinates) {
+function kingMoves(kingCoordinate, board) {
 	let kingMovesArray = [];
 	let file = coordinates[kingCoordinate[0]];
 	let rank = coordinates[kingCoordinate[1]];
@@ -2051,9 +2025,9 @@ function kingMoves(kingCoordinate, board, coordinates) {
 
 		// top-left
 		if(rank-1 >= 0 && file-1 >= 0) {
-			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file-1] + rankCoordinates[rank-1], testBoard, coordinates);
+			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file-1] + rankCoordinates[rank-1], testBoard);
 			kingCoordinate = kingCoordinates(testBoard, "White");
-			if(!inCheck(kingCoordinate, testBoard, coordinates, "White")) {
+			if(!inCheck(kingCoordinate, testBoard, "White")) {
 				kingMovesArray.push(fileCoordinates[file-1] + rankCoordinates[rank-1]);
 			}
 		}
@@ -2063,9 +2037,9 @@ function kingMoves(kingCoordinate, board, coordinates) {
 
 		// top-right
 		if(rank-1 >= 0 && file+1 < 8) {
-			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file+1] + rankCoordinates[rank-1], testBoard, coordinates);
+			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file+1] + rankCoordinates[rank-1], testBoard);
 			kingCoordinate = kingCoordinates(testBoard, "White");
-			if(!inCheck(kingCoordinate, testBoard, coordinates, "White")) {
+			if(!inCheck(kingCoordinate, testBoard, "White")) {
 				kingMovesArray.push(fileCoordinates[file+1] + rankCoordinates[rank-1]);
 			}
 		}
@@ -2075,9 +2049,9 @@ function kingMoves(kingCoordinate, board, coordinates) {
 
 		// bottom-left
 		if(rank+1 < 8 && file-1 >= 0) {
-			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file-1] + rankCoordinates[rank+1], testBoard, coordinates);
+			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file-1] + rankCoordinates[rank+1], testBoard);
 			kingCoordinate = kingCoordinates(testBoard, "White");
-			if(!inCheck(kingCoordinate, testBoard, coordinates, "White")) {
+			if(!inCheck(kingCoordinate, testBoard, "White")) {
 				kingMovesArray.push(fileCoordinates[file-1] + rankCoordinates[rank+1]);
 			}
 		}
@@ -2087,9 +2061,9 @@ function kingMoves(kingCoordinate, board, coordinates) {
 
 		// bottom-right
 		if(rank+1 < 8 && file+1 < 8) {
-			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file+1] + rankCoordinates[rank+1], testBoard, coordinates);
+			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file+1] + rankCoordinates[rank+1], testBoard);
 			kingCoordinate = kingCoordinates(testBoard, "White");
-			if(!inCheck(kingCoordinate, testBoard, coordinates, "White")) {
+			if(!inCheck(kingCoordinate, testBoard, "White")) {
 				kingMovesArray.push(fileCoordinates[file+1] + rankCoordinates[rank+1]);
 			}
 		}
@@ -2099,9 +2073,9 @@ function kingMoves(kingCoordinate, board, coordinates) {
 
 		// up
 		if(rank-1 >= 0) {
-			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file] + rankCoordinates[rank-1], testBoard, coordinates);
+			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file] + rankCoordinates[rank-1], testBoard);
 			kingCoordinate = kingCoordinates(testBoard, "White");
-			if(!inCheck(kingCoordinate, testBoard, coordinates, "White")) {
+			if(!inCheck(kingCoordinate, testBoard, "White")) {
 				kingMovesArray.push(fileCoordinates[file] + rankCoordinates[rank-1]);
 			}
 		}
@@ -2111,9 +2085,9 @@ function kingMoves(kingCoordinate, board, coordinates) {
 
 		// down
 		if(rank+1 < 8) {
-			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file] + rankCoordinates[rank+1], testBoard, coordinates);
+			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file] + rankCoordinates[rank+1], testBoard);
 			kingCoordinate = kingCoordinates(testBoard, "White");
-			if(!inCheck(kingCoordinate, testBoard, coordinates, "White")) {
+			if(!inCheck(kingCoordinate, testBoard, "White")) {
 				kingMovesArray.push(fileCoordinates[file] + rankCoordinates[rank+1]);
 			}
 		}
@@ -2123,9 +2097,9 @@ function kingMoves(kingCoordinate, board, coordinates) {
 
 		// left
 		if(file-1 >= 0) {
-			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file-1] + rankCoordinates[rank], testBoard, coordinates);
+			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file-1] + rankCoordinates[rank], testBoard);
 			kingCoordinate = kingCoordinates(testBoard, "White");
-			if(!inCheck(kingCoordinate, testBoard, coordinates, "White")) {
+			if(!inCheck(kingCoordinate, testBoard, "White")) {
 				kingMovesArray.push(fileCoordinates[file-1] + rankCoordinates[rank]);
 			}
 		}
@@ -2135,9 +2109,9 @@ function kingMoves(kingCoordinate, board, coordinates) {
 
 		// right
 		if(file+1 < 8) {
-			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file+1] + rankCoordinates[rank], testBoard, coordinates);
+			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file+1] + rankCoordinates[rank], testBoard);
 			kingCoordinate = kingCoordinates(testBoard, "White");
-			if(!inCheck(kingCoordinate, testBoard, coordinates, "White")) {
+			if(!inCheck(kingCoordinate, testBoard, "White")) {
 				kingMovesArray.push(fileCoordinates[file+1] + rankCoordinates[rank]);
 			}
 		}
@@ -2145,28 +2119,28 @@ function kingMoves(kingCoordinate, board, coordinates) {
 		testBoard = JSON.parse(JSON.stringify(board));
 		kingCoordinate = kingCoordinates(board, "White");
 
-		if(!inCheck(kingCoordinate, testBoard, coordinates, "White")) {
+		if(!inCheck(kingCoordinate, testBoard, "White")) {
 			if(board[rank][file] === 'k' && board[7][5] === '' && board[7][6] === '' && board[7][7] === 'r') {
-				move(kingCoordinate, fileCoordinates[5] + rankCoordinates[7], testBoard, coordinates);
+				move(kingCoordinate, fileCoordinates[5] + rankCoordinates[7], testBoard);
 				kingCoordinate = kingCoordinates(testBoard, "White");
-				if(!inCheck(kingCoordinate, testBoard, coordinates, "White")) {
-					move(kingCoordinate, fileCoordinates[6] + rankCoordinates[7], testBoard, coordinates);
+				if(!inCheck(kingCoordinate, testBoard, "White")) {
+					move(kingCoordinate, fileCoordinates[6] + rankCoordinates[7], testBoard);
 					kingCoordinate = kingCoordinates(testBoard, "White");
-					if(!inCheck(kingCoordinate, testBoard, coordinates, "White")) {
+					if(!inCheck(kingCoordinate, testBoard, "White")) {
 						kingMovesArray.push("g1o");
 					}
 				}
 			}
 			if(board[rank][file] === 'k' && board[7][3] === '' && board[7][2] === '' && board[7][1] === '' && board[7][0] === 'r') {
-				move(kingCoordinate, fileCoordinates[3] + rankCoordinates[7], testBoard, coordinates);
+				move(kingCoordinate, fileCoordinates[3] + rankCoordinates[7], testBoard);
 				kingCoordinate = kingCoordinates(testBoard, "White");
-				if(!inCheck(kingCoordinate, testBoard, coordinates, "White")) {
-					move(kingCoordinate, fileCoordinates[2] + rankCoordinates[7], testBoard, coordinates);
+				if(!inCheck(kingCoordinate, testBoard, "White")) {
+					move(kingCoordinate, fileCoordinates[2] + rankCoordinates[7], testBoard);
 					kingCoordinate = kingCoordinates(testBoard, "White");
-					if(!inCheck(kingCoordinate, testBoard, coordinates, "White")) {
-						move(kingCoordinate, fileCoordinates[1] + rankCoordinates[7], testBoard, coordinates);
+					if(!inCheck(kingCoordinate, testBoard, "White")) {
+						move(kingCoordinate, fileCoordinates[1] + rankCoordinates[7], testBoard);
 						kingCoordinate = kingCoordinates(testBoard, "White");
-						if(!inCheck(kingCoordinate, testBoard, coordinates, "White")) {
+						if(!inCheck(kingCoordinate, testBoard, "White")) {
 							kingMovesArray.push("b1o");
 						}
 					}
@@ -2178,9 +2152,9 @@ function kingMoves(kingCoordinate, board, coordinates) {
 
 		// top-left
 		if(rank-1 >= 0 && file-1 >= 0) {
-			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file-1] + rankCoordinates[rank-1], testBoard, coordinates);
+			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file-1] + rankCoordinates[rank-1], testBoard);
 			kingCoordinate = kingCoordinates(testBoard, "Black");
-			if(!inCheck(kingCoordinate, testBoard, coordinates, "Black")) {
+			if(!inCheck(kingCoordinate, testBoard, "Black")) {
 				kingMovesArray.push(fileCoordinates[file-1] + rankCoordinates[rank-1]);
 			}
 		}
@@ -2190,9 +2164,9 @@ function kingMoves(kingCoordinate, board, coordinates) {
 
 		// top-right
 		if(rank-1 >= 0 && file+1 < 8) {
-			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file+1] + rankCoordinates[rank-1], testBoard, coordinates);
+			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file+1] + rankCoordinates[rank-1], testBoard);
 			kingCoordinate = kingCoordinates(testBoard, "Black");
-			if(!inCheck(kingCoordinate, testBoard, coordinates, "Black")) {
+			if(!inCheck(kingCoordinate, testBoard, "Black")) {
 				kingMovesArray.push(fileCoordinates[file+1] + rankCoordinates[rank-1]);
 			}
 		}
@@ -2202,9 +2176,9 @@ function kingMoves(kingCoordinate, board, coordinates) {
 
 		// bottom-left
 		if(rank+1 < 8 && file-1 >= 0) {
-			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file-1] + rankCoordinates[rank+1], testBoard, coordinates);
+			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file-1] + rankCoordinates[rank+1], testBoard);
 			kingCoordinate = kingCoordinates(testBoard, "Black");
-			if(!inCheck(kingCoordinate, testBoard, coordinates, "Black")) {
+			if(!inCheck(kingCoordinate, testBoard, "Black")) {
 				kingMovesArray.push(fileCoordinates[file-1] + rankCoordinates[rank+1]);
 			}
 		}
@@ -2213,9 +2187,9 @@ function kingMoves(kingCoordinate, board, coordinates) {
 		kingCoordinate = kingCoordinates(board, "Black");
 		// bottom-right
 		if(rank+1 < 8 && file+1 < 8) {
-			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file+1] + rankCoordinates[rank+1], testBoard, coordinates);
+			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file+1] + rankCoordinates[rank+1], testBoard);
 			kingCoordinate = kingCoordinates(testBoard, "Black");
-			if(!inCheck(kingCoordinate, testBoard, coordinates, "Black")) {
+			if(!inCheck(kingCoordinate, testBoard, "Black")) {
 				kingMovesArray.push(fileCoordinates[file+1] + rankCoordinates[rank+1]);
 			}
 		}
@@ -2225,9 +2199,9 @@ function kingMoves(kingCoordinate, board, coordinates) {
 
 		// up
 		if(rank-1 >= 0) {
-			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file] + rankCoordinates[rank-1], testBoard, coordinates);
+			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file] + rankCoordinates[rank-1], testBoard);
 			kingCoordinate = kingCoordinates(testBoard, "Black");
-			if(!inCheck(kingCoordinate, testBoard, coordinates, "Black")) {
+			if(!inCheck(kingCoordinate, testBoard, "Black")) {
 				kingMovesArray.push(fileCoordinates[file] + rankCoordinates[rank-1]);
 			}
 		}
@@ -2237,9 +2211,9 @@ function kingMoves(kingCoordinate, board, coordinates) {
 
 		// down
 		if(rank+1 < 8) {
-			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file] + rankCoordinates[rank+1], testBoard, coordinates);
+			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file] + rankCoordinates[rank+1], testBoard);
 			kingCoordinate = kingCoordinates(testBoard, "Black");
-			if(!inCheck(kingCoordinate, testBoard, coordinates, "Black")) {
+			if(!inCheck(kingCoordinate, testBoard, "Black")) {
 				kingMovesArray.push(fileCoordinates[file] + rankCoordinates[rank+1]);
 			}
 		}
@@ -2248,9 +2222,9 @@ function kingMoves(kingCoordinate, board, coordinates) {
 
 		// left
 		if(file-1 >= 0) {
-			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file-1] + rankCoordinates[rank], testBoard, coordinates);
+			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file-1] + rankCoordinates[rank], testBoard);
 			kingCoordinate = kingCoordinates(testBoard, "Black");
-			if(!inCheck(kingCoordinate, testBoard, coordinates, "Black")) {
+			if(!inCheck(kingCoordinate, testBoard, "Black")) {
 				kingMovesArray.push(fileCoordinates[file-1] + rankCoordinates[rank]);
 			}
 		}
@@ -2260,9 +2234,9 @@ function kingMoves(kingCoordinate, board, coordinates) {
 
 		// right
 		if(file+1 < 8) {
-			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file+1] + rankCoordinates[rank], testBoard, coordinates);
+			move(fileCoordinates[file] + rankCoordinates[rank], fileCoordinates[file+1] + rankCoordinates[rank], testBoard);
 			kingCoordinate = kingCoordinates(testBoard, "Black");
-			if(!inCheck(kingCoordinate, testBoard, coordinates, "Black")) {
+			if(!inCheck(kingCoordinate, testBoard, "Black")) {
 				kingMovesArray.push(fileCoordinates[file+1] + rankCoordinates[rank]);
 			}
 		}
@@ -2270,28 +2244,28 @@ function kingMoves(kingCoordinate, board, coordinates) {
 		testBoard = JSON.parse(JSON.stringify(board));
 		kingCoordinate = kingCoordinates(board, "Black");
 
-		if(!inCheck(kingCoordinate, testBoard, coordinates, "Black")) {
+		if(!inCheck(kingCoordinate, testBoard, "Black")) {
 			if(board[rank][file] === RED + 'k' + WHITE && board[0][5] === '' && board[0][6] === '' && board[0][7] === RED + 'r' + WHITE) {
-				move(kingCoordinate, fileCoordinates[5] + rankCoordinates[0], testBoard, coordinates);
+				move(kingCoordinate, fileCoordinates[5] + rankCoordinates[0], testBoard);
 				kingCoordinate = kingCoordinates(testBoard, "Black");
-				if(!inCheck(kingCoordinate, testBoard, coordinates, "Black")) {
-					move(kingCoordinate, fileCoordinates[6] + rankCoordinates[0], testBoard, coordinates);
+				if(!inCheck(kingCoordinate, testBoard, "Black")) {
+					move(kingCoordinate, fileCoordinates[6] + rankCoordinates[0], testBoard);
 					kingCoordinate = kingCoordinates(testBoard, "Black");
-					if(!inCheck(kingCoordinate, testBoard, coordinates, "Black")) {
+					if(!inCheck(kingCoordinate, testBoard, "Black")) {
 						kingMovesArray.push("g8o");
 					}
 				}
 			}
 			if(board[rank][file] === RED + 'k' + WHITE && board[0][3] === '' && board[0][2] === '' && board[0][1] === '' && board[0][0] === RED + 'r' + WHITE) {
-				move(kingCoordinate, fileCoordinates[3] + rankCoordinates[0], testBoard, coordinates);
+				move(kingCoordinate, fileCoordinates[3] + rankCoordinates[0], testBoard);
 				kingCoordinate = kingCoordinates(testBoard, "Black");
-				if(!inCheck(kingCoordinate, testBoard, coordinates, "Black")) {
-					move(kingCoordinate, fileCoordinates[2] + rankCoordinates[0], testBoard, coordinates);
+				if(!inCheck(kingCoordinate, testBoard, "Black")) {
+					move(kingCoordinate, fileCoordinates[2] + rankCoordinates[0], testBoard);
 					kingCoordinate = kingCoordinates(testBoard, "Black");
-					if(!inCheck(kingCoordinate, testBoard, coordinates, "Black")) {
-						move(kingCoordinate, fileCoordinates[1] + rankCoordinates[0], testBoard, coordinates);
+					if(!inCheck(kingCoordinate, testBoard, "Black")) {
+						move(kingCoordinate, fileCoordinates[1] + rankCoordinates[0], testBoard);
 						kingCoordinate = kingCoordinates(testBoard, "Black");
-						if(!inCheck(kingCoordinate, testBoard, coordinates, "Black")) {
+						if(!inCheck(kingCoordinate, testBoard, "Black")) {
 							kingMovesArray.push("b8o");
 						}
 					}
@@ -2315,7 +2289,7 @@ function kingMoves(kingCoordinate, board, coordinates) {
 	return kingMovesArray;
 }
 
-function checkMoves(pieceCoordinate, board, coordinates) {
+function checkMoves(pieceCoordinate, board) {
 	let fileCoordinates = {
 		0: 'a',
 		1: 'b',
@@ -2682,16 +2656,16 @@ function checkMoves(pieceCoordinate, board, coordinates) {
 	return moves;
 }
 
-function otherMoves(board, color, coordinates) {
+function otherMoves(board, color) {
 	let availableMoves = [];
 
 	if(color === "White") {
 		for(let rank = 0; rank < board.length; ++rank) {
 			for(let file = 0; file < board[rank].length; ++file) {
 				if(board[rank][file] !== '' && !board[rank][file].includes(RED) && board[rank][file] !== 'K') {
-					let moves = legalMoves(fileCoordinates[file] + rankCoordinates[rank], board, coordinates);
+					let moves = legalMoves(fileCoordinates[file] + rankCoordinates[rank], board);
 					if(moves.length > 0) {
-						availableMoves.push(legalMoves(fileCoordinates[file] + rankCoordinates[rank], board, coordinates));
+						availableMoves.push(legalMoves(fileCoordinates[file] + rankCoordinates[rank], board));
 					}
 				}
 			}
@@ -2700,9 +2674,9 @@ function otherMoves(board, color, coordinates) {
 		for(let rank = 0; rank < board.length; ++rank) {
 			for(let file = 0; file < board[rank].length; ++file) {
 				if(board[rank][file].includes(RED) && board[rank][file] !== RED + 'K' + WHITE) {
-					let moves = legalMoves(fileCoordinates[file] + rankCoordinates[rank], board, coordinates);
+					let moves = legalMoves(fileCoordinates[file] + rankCoordinates[rank], board);
 					if(moves.length > 0) {
-						availableMoves.push(legalMoves(fileCoordinates[file] + rankCoordinates[rank], board, coordinates));
+						availableMoves.push(legalMoves(fileCoordinates[file] + rankCoordinates[rank], board));
 					}
 				}
 			}
@@ -2712,22 +2686,22 @@ function otherMoves(board, color, coordinates) {
 	return availableMoves.length <= 0 ? false : true;
 }
 
-function ended(kingCoordinate, board, coordinates, color) {
+function ended(kingCoordinate, board, color) {
 	let file = coordinates[kingCoordinate[0]];
 	let rank = coordinates[kingCoordinate[1]];
 
 	if(color === "White") {
-		moves = kingMoves(kingCoordinates(board, "White"), board, coordinates);
+		moves = kingMoves(kingCoordinates(board, "White"), board);
 
-		if(otherMoves(board, "White", coordinates) === false && moves.length <= 0) {
-			if(inCheck(fileCoordinates[file] + rankCoordinates[rank], board, coordinates, "White") === false) return "stalemate";
+		if(otherMoves(board, "White") === false && moves.length <= 0) {
+			if(inCheck(fileCoordinates[file] + rankCoordinates[rank], board, "White") === false) return "stalemate";
 			return "checkmate";
 		}
 	} else {
-		moves = kingMoves(kingCoordinates(board, "Black"), board, coordinates);
+		moves = kingMoves(kingCoordinates(board, "Black"), board);
 
-		if(otherMoves(board, "Black", coordinates) === false && moves.length <= 0) {
-			if(inCheck(fileCoordinates[file] + rankCoordinates[rank], board, coordinates, "Black") === false) return "stalemate";
+		if(otherMoves(board, "Black") === false && moves.length <= 0) {
+			if(inCheck(fileCoordinates[file] + rankCoordinates[rank], board, "Black") === false) return "stalemate";
 			return "checkmate";
 		}
 
@@ -2736,7 +2710,7 @@ function ended(kingCoordinate, board, coordinates, color) {
 	return false;
 }
 
-function promote(pawnCoordinate, board, coordinates, piece) {
+function promote(pawnCoordinate, board, piece) {
 	board[coordinates[pawnCoordinate[1]]][coordinates[pawnCoordinate[0]]] = piece;
 }
 
@@ -2751,23 +2725,11 @@ let board = [
  	['r', 'N', 'B', 'Q', 'k', 'B', 'N', 'r']
 ];
 
-coordinates = {
-	'a': 0,
-	'b': 1,
-	'c': 2,
-	'd': 3,
-	'e': 4,
-	'f': 5,
-	'g': 6,
-	'h': 7,
-	1: 7,
-	2: 6,
-	3: 5,
-	4: 4,
-	5: 3,
-	6: 2,
-	7: 1,
-	8: 0
+let promotionMap = {
+	1: 'Q',
+	2: 'R',
+	3: 'N',
+	4: 'B'
 }
 
 let running = true;
@@ -2784,6 +2746,7 @@ let beforeCoordinate, afterCoordinate;
 let pieceMoves;
 let enPassant = [];
 let highlight = [];
+let promotionPiece;
 
 show();
 
@@ -2864,7 +2827,7 @@ while(running) {
 							beforeCoordinate = readline.question("Enter a piece coordinate: ");
 							beforeCoordinate = beforeCoordinate.toLowerCase();
 
-							if(!/\w{1}\d{1}/i.test(beforeCoordinate)) {
+							if(!/^\w{1}\d{1}$/i.test(beforeCoordinate)) {
 								errorMessage = '"' + beforeCoordinate + '"' + " is not a valid coordinate!";
 								continue;
 							}
@@ -2876,26 +2839,23 @@ while(running) {
 								continue;
 							}
 
-							if(currentBoard
+							piece = currentBoard
 								[coordinates[beforeCoordinate[1]]]
-								[coordinates[beforeCoordinate[0]]] === ''
-							) {
+								[coordinates[beforeCoordinate[0]]];
+
+							if(piece === '') {
 								errorMessage = beforeCoordinate + " does not have any pieces on it!";
 								continue;
 							}
-							if((turn === "White" && currentBoard
-								[coordinates[beforeCoordinate[1]]]
-								[coordinates[beforeCoordinate[0]]].includes(RED))
+							if((turn === "White" && piece.includes(RED))
 								||
-								(turn === "Black" && !currentBoard
-								[coordinates[beforeCoordinate[1]]]
-								[coordinates[beforeCoordinate[0]]].includes(RED))
+								(turn === "Black" && !piece.includes(RED))
 							) {
 								errorMessage = "Piece on " + beforeCoordinate + " is not your piece!";
 								continue;
 							}
 
-							pieceMoves = legalMoves(beforeCoordinate, currentBoard, coordinates, enPassant);
+							pieceMoves = legalMoves(beforeCoordinate, currentBoard, enPassant);
 							if(pieceMoves.length <= 0) {
 								errorMessage = "Piece on " + beforeCoordinate + " does not have any legal moves!";
 								continue;
@@ -2935,12 +2895,37 @@ while(running) {
 							break;
 						}
 
-						enPassant = move(beforeCoordinate, pieceMoves[parseInt(afterCoordinate)-1], currentBoard, coordinates);
+						afterCoordinate = pieceMoves[parseInt(afterCoordinate)-1];
+
+						enPassant = move(beforeCoordinate, afterCoordinate, currentBoard);
+
+						if(piece === 'P' && afterCoordinate[1] === '8') {
+							while(true) {
+								console.clear();
+								displayBoard(currentBoard)
+
+								console.log('\n');
+								if(errorMessage !== '') {
+									console.log(errorMessage + '\n');
+								}
+								errorMessage = '';
+
+								promotionPiece = readline.question("What would you like to promote the pawn to?\n\n1 - Queen\n2 - Rook\n3 - Knight\n4 - Bishop\n\nEnter a number: ");
+
+								if(!/^\d$/.test(promotionPiece) || parseInt(promotionPiece) > 4 || parseInt(promotionPiece) < 1) {
+									errorMessage = "Invalid promotion choice!";
+									continue;
+								}
+
+								promote(afterCoordinate, currentBoard, promotionMap[promotionPiece]);
+								break;
+							}
+						}
 
 						if(turn === "White") turn = "Black";
 						else turn = "White";
 						
-						checkEnded = ended(kingCoordinates(currentBoard, turn), currentBoard, coordinates, turn);
+						checkEnded = ended(kingCoordinates(currentBoard, turn), currentBoard, turn);
 						if(checkEnded === "checkmate") {
 							if(turn === "Black") gameConclusion = "White wins by checkmate!";
 							else gameConclusion = "Black wins by checkmate!";
