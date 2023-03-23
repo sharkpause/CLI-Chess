@@ -5,6 +5,7 @@ const RESET = "\x1b[0m";
 const RED = "\x1b[31m";
 const BLUE = "\x1b[34m";
 const WHITE = "\x1b[37m";
+const GREEN = "\x1b[32m";
 const BG_BLACK = "\x1b[40m";
 const BG_WHITE = "\x1b[47m";
 const BG_YELLOW = "\x1b[43m";
@@ -215,7 +216,7 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 
 			if(rank+2 < 8 && board[rank+2][file] === '' && board[rank+1][file] === '') {
 				move(testPiece, fileCoordinates[file] + rankCoordinates[rank+2], testBoard);
-				if(inCheck(kingCoordinate, testBoard, color) === false) {
+				if(!inCheck(kingCoordinate, testBoard, color)) {
 					moves.push(fileCoordinates[file] + rankCoordinates[rank+2]);
 				}
 			}
@@ -229,7 +230,7 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 				if(file > 0) {
 					if(!board[rank+1][file-1].includes(RED) && board[rank+1][file-1] !== '') {
 						move(testPiece, fileCoordinates[file-1] + rankCoordinates[rank+1], testBoard);
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(fileCoordinates[file-1] + rankCoordinates[rank+1]);
 						}
 					}
@@ -240,7 +241,7 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 				if(file < 7) {
 					if(!board[rank+1][file+1].includes(RED) && board[rank+1][file+1] !== '') {
 						move(testPiece, fileCoordinates[file+1] + rankCoordinates[rank+1], testBoard);
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(fileCoordinates[file+1] + rankCoordinates[rank+1]);
 						}
 					}
@@ -251,7 +252,7 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 
 			if(rank+1 < 8 && board[rank+1][file] === '') {
 				move(testPiece, fileCoordinates[file] + rankCoordinates[rank+1], testBoard);
-				if(inCheck(kingCoordinate, testBoard, color) === false) {
+				if(!inCheck(kingCoordinate, testBoard, color)) {
 					moves.push(fileCoordinates[file] + rankCoordinates[rank+1]);
 				}
 			}
@@ -269,7 +270,7 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 
 			if(rank-2 >= 0 && board[rank-2][file] === '' && board[rank-1][file] === '') {
 				move(testPiece, fileCoordinates[file] + rankCoordinates[rank-2], testBoard);
-				if(inCheck(kingCoordinate, testBoard, color) === false) {
+				if(!inCheck(kingCoordinate, testBoard, color)) {
 					moves.push(fileCoordinates[file] + rankCoordinates[rank-2]);
 				}
 			}
@@ -283,7 +284,7 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 				if(file > 0) {
 					if(board[rank-1][file-1].includes(RED)) {
 						move(kingCoordinate, fileCoordinates[file-1] + rankCoordinates[rank-1], testBoard);
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(fileCoordinates[file-1] + rankCoordinates[rank-1]);
 						}
 					}
@@ -294,7 +295,7 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 				if(file < 7) {
 					if(board[rank-1][file+1].includes(RED)) {
 						move(testPiece, fileCoordinates[file+1] + rankCoordinates[rank-1], testBoard);
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(fileCoordinates[file+1] + rankCoordinates[rank-1]);
 						}
 					}
@@ -305,7 +306,7 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 
 			if(rank-1 >= 0 && board[rank-1][file] === '') {
 				move(testPiece, fileCoordinates[file] + rankCoordinates[rank-1], testBoard);
-				if(inCheck(kingCoordinate, testBoard, color) === false) {
+				if(!inCheck(kingCoordinate, testBoard, color)) {
 					moves.push(fileCoordinates[file] + rankCoordinates[rank-1]);
 				}
 			}
@@ -329,14 +330,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(!square.includes(RED) && square !== '') {
@@ -359,14 +360,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(!square.includes(RED) && square !== '') {
@@ -389,14 +390,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(!square.includes(RED) && square !== '') {
@@ -419,14 +420,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(!square.includes(RED) && square !== '') {
@@ -451,14 +452,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(square.includes(RED)) {
@@ -481,14 +482,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(square.includes(RED)) {
@@ -511,14 +512,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(square.includes(RED)) {
@@ -541,14 +542,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(square.includes(RED)) {
@@ -567,7 +568,7 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 
 			if(rank > 1 && file > 0 && (board[rank-2][file-1] === '' || !board[rank-2][file-1].includes(RED))) {
 				move(kingCoordinate, fileCoordinates[file-1] + rankCoordinates[rank-2], testBoard);
-				if(inCheck(kingCoordinate, testBoard, color) === false) {
+				if(!inCheck(kingCoordinate, testBoard, color)) {
 					moves.push(fileCoordinates[file-1] + rankCoordinates[rank-2]);
 				}
 			}
@@ -576,7 +577,7 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 
 			if(rank > 1 && file < 7 && (board[rank-2][file+1] === '' || !board[rank-2][file+1].includes(RED))) {
 				move(testPiece, fileCoordinates[file+1] + rankCoordinates[rank-2], testBoard);
-				if(inCheck(kingCoordinate, testBoard, color) === false) {
+				if(!inCheck(kingCoordinate, testBoard, color)) {
 					moves.push(fileCoordinates[file+1] + rankCoordinates[rank-2]);
 				}
 			}
@@ -585,7 +586,7 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 
 			if(rank < 6 && file > 0 && (board[rank+2][file-1] === '' || !board[rank+2][file-1].includes(RED))) {
 				move(testPiece, fileCoordinates[file-1] + rankCoordinates[rank+2], testBoard);
-				if(inCheck(kingCoordinate, testBoard, color) === false) {
+				if(!inCheck(kingCoordinate, testBoard, color)) {
 					moves.push(fileCoordinates[file-1] + rankCoordinates[rank+2]);
 				}
 			}
@@ -594,7 +595,7 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 
 			if(rank < 6 && file < 7 && (board[rank+2][file+1] === '' || !board[rank+2][file+1].includes(RED))) {
 				move(testPiece, fileCoordinates[file+1] + rankCoordinates[rank+2], testBoard);
-				if(inCheck(kingCoordinate, testBoard, color) === false) {
+				if(!inCheck(kingCoordinate, testBoard, color)) {
 					moves.push(fileCoordinates[file+1] + rankCoordinates[rank+2]);
 				}
 			}
@@ -603,7 +604,7 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 
 			if(rank > 0 && file > 1 && (board[rank-1][file-2] === '' || !board[rank-1][file-2].includes(RED))) {
 				move(testPiece, fileCoordinates[file-2] + rankCoordinates[rank-1], testBoard);
-				if(inCheck(kingCoordinate, testBoard, color) === false) {
+				if(!inCheck(kingCoordinate, testBoard, color)) {
 					moves.push(fileCoordinates[file-2] + rankCoordinates[rank-1]);
 				}
 			}
@@ -612,7 +613,7 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 
 			if(rank < 7 && file > 1 && (board[rank+1][file-2] === '' || !board[rank+1][file-2].includes(RED))) {
 				move(testPiece, fileCoordinates[file-2] + rankCoordinates[rank+1], testBoard);
-				if(inCheck(kingCoordinate, testBoard, color) === false) {
+				if(!inCheck(kingCoordinate, testBoard, color)) {
 					moves.push(fileCoordinates[file-2] + rankCoordinates[rank+1]);
 				}
 			}
@@ -621,7 +622,7 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 
 			if(rank > 0 && file < 6 && (board[rank-1][file+2] === '' || !board[rank-1][file+2].includes(RED))) {
 				move(testPiece, fileCoordinates[file+2] + rankCoordinates[rank-1], testBoard);
-				if(inCheck(kingCoordinate, testBoard, color) === false) {
+				if(!inCheck(kingCoordinate, testBoard, color)) {
 					moves.push(fileCoordinates[file+2] + rankCoordinates[rank-1]);
 				}
 			}
@@ -630,7 +631,7 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 
 			if(rank < 7 && file < 6 && (board[rank+1][file+2] === '' || !board[rank+1][file+2].includes(RED))) {
 				move(testPiece, fileCoordinates[file+2] + rankCoordinates[rank+1], testBoard);
-				if(inCheck(kingCoordinate, testBoard, color) === false) {
+				if(!inCheck(kingCoordinate, testBoard, color)) {
 					moves.push(fileCoordinates[file+2] + rankCoordinates[rank+1]);
 				}
 			}
@@ -642,7 +643,7 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 
 			if(rank > 1 && file > 0 && (board[rank-2][file-1] === '' || board[rank-2][file-1].includes(RED))) {
 				move(testPiece, fileCoordinates[file-1] + rankCoordinates[rank-2], testBoard);
-				if(inCheck(kingCoordinate, testBoard, color) === false) {
+				if(!inCheck(kingCoordinate, testBoard, color)) {
 					moves.push(fileCoordinates[file-1] + rankCoordinates[rank-2]);
 				}
 			}
@@ -651,7 +652,7 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 
 			if(rank > 1 && file < 7 && (board[rank-2][file+1] === '' || board[rank-2][file+1].includes(RED))) {
 				move(testPiece, fileCoordinates[file+1] + rankCoordinates[rank-2], testBoard);
-				if(inCheck(kingCoordinate, testBoard, color) === false) {
+				if(!inCheck(kingCoordinate, testBoard, color)) {
 					moves.push(fileCoordinates[file+1] + rankCoordinates[rank-2]);
 				}
 			}
@@ -660,7 +661,7 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 
 			if(rank < 6 && file > 0 && (board[rank+2][file-1] === '' || board[rank+2][file-1].includes(RED))) {
 				move(testPiece, fileCoordinates[file-1] + rankCoordinates[rank+2], testBoard);
-				if(inCheck(kingCoordinate, testBoard, color) === false) {
+				if(!inCheck(kingCoordinate, testBoard, color)) {
 					moves.push(fileCoordinates[file-1] + rankCoordinates[rank+2]);
 				}
 			}
@@ -669,7 +670,7 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 
 			if(rank < 6 && file < 7 && (board[rank+2][file+1] === '' || board[rank+2][file+1].includes(RED))) {
 				move(testPiece, fileCoordinates[file+1] + rankCoordinates[rank+2], testBoard);
-				if(inCheck(kingCoordinate, testBoard, color) === false) {
+				if(!inCheck(kingCoordinate, testBoard, color)) {
 					moves.push(fileCoordinates[file+1] + rankCoordinates[rank+2]);
 				}
 			}
@@ -678,7 +679,7 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 
 			if(rank > 0 && file > 1 && (board[rank-1][file-2] === '' || board[rank-1][file-2].includes(RED))) {
 				move(testPiece, fileCoordinates[file-2] + rankCoordinates[rank-1], testBoard);
-				if(inCheck(kingCoordinate, testBoard, color) === false) {
+				if(!inCheck(kingCoordinate, testBoard, color)) {
 					moves.push(fileCoordinates[file-2] + rankCoordinates[rank-1]);
 				}
 			}
@@ -687,7 +688,7 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 
 			if(rank < 7 && file > 1 && (board[rank+1][file-2] === '' || board[rank+1][file-2].includes(RED))) {
 				move(testPiece, fileCoordinates[file-2] + rankCoordinates[rank+1], testBoard);
-				if(inCheck(kingCoordinate, testBoard, color) === false) {
+				if(!inCheck(kingCoordinate, testBoard, color)) {
 					moves.push(fileCoordinates[file-2] + rankCoordinates[rank+1]);
 				}
 			}
@@ -696,7 +697,7 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 
 			if(rank > 0 && file < 6 && (board[rank-1][file+2] === '' || board[rank-1][file+2].includes(RED))) {
 				move(testPiece, fileCoordinates[file+2] + rankCoordinates[rank-1], testBoard);
-				if(inCheck(kingCoordinate, testBoard, color) === false) {
+				if(!inCheck(kingCoordinate, testBoard, color)) {
 					moves.push(fileCoordinates[file+2] + rankCoordinates[rank-1]);
 				}
 			}
@@ -705,7 +706,7 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 
 			if(rank < 7 && file < 6 && (board[rank+1][file+2] === '' || board[rank+1][file+2].includes(RED))) {
 				move(testPiece, fileCoordinates[file+2] + rankCoordinates[rank+1], testBoard);
-				if(inCheck(kingCoordinate, testBoard, color) === false) {
+				if(!inCheck(kingCoordinate, testBoard, color)) {
 					moves.push(fileCoordinates[file+2] + rankCoordinates[rank+1]);
 				}
 			}
@@ -724,14 +725,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(!square.includes(RED) && square !== '') {
@@ -754,14 +755,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(!square.includes(RED) && square !== '') {
@@ -784,14 +785,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(!square.includes(RED) && square !== '') {
@@ -814,14 +815,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(!square.includes(RED) && square !== '') {
@@ -847,14 +848,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(square.includes(RED)) {
@@ -877,14 +878,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(square.includes(RED)) {
@@ -907,14 +908,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(square.includes(RED)) {
@@ -937,14 +938,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(square.includes(RED)) {
@@ -969,14 +970,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(!square.includes(RED) && square !== '') {
@@ -999,14 +1000,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(!square.includes(RED) && square !== '') {
@@ -1029,14 +1030,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(!square.includes(RED) && square !== '') {
@@ -1059,14 +1060,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(!square.includes(RED) && square !== '') {
@@ -1089,14 +1090,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(!square.includes(RED) && square !== '') {
@@ -1119,14 +1120,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(!square.includes(RED) && square !== '') {
@@ -1149,14 +1150,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(!square.includes(RED) && square !== '') {
@@ -1179,14 +1180,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(!square.includes(RED) && square !== '') {
@@ -1211,14 +1212,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(square.includes(RED)) {
@@ -1241,14 +1242,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(square.includes(RED)) {
@@ -1271,14 +1272,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(square.includes(RED)) {
@@ -1301,14 +1302,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(square.includes(RED)) {
@@ -1331,14 +1332,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(square.includes(RED)) {
@@ -1361,14 +1362,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(square.includes(RED)) {
@@ -1391,14 +1392,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(square.includes(RED)) {
@@ -1421,14 +1422,14 @@ function legalMoves(pieceCoordinate, board, enPassant=[]) {
 					if(inCheck(kingCoordinate, testBoard, color) === true) {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 							break;
 						}
 					} else {
 						move(testPiece, moveCoordinates, testBoard);
 						testPiece = moveCoordinates;
-						if(inCheck(kingCoordinate, testBoard, color) === false) {
+						if(!inCheck(kingCoordinate, testBoard, color)) {
 							moves.push(moveCoordinates);
 						}
 						if(square.includes(RED)) {
@@ -2012,7 +2013,7 @@ function checkMoves(pieceCoordinate, board) {
 	return moves;
 }
 
-function otherMoves(board, color) { // TODO: refactor this shit
+function otherMoves(board, color) {
 	let availableMoves = [];
 	let moves = [];
 	if(color === "White") {
@@ -2048,8 +2049,9 @@ function ended(kingCoordinate, board, color) {
 
 	moves = legalMoves(kingCoordinates(board, color), board);
 
-	if(otherMoves(board, color) === false && moves.length <= 0) {
-		if(inCheck(fileCoordinates[file] + rankCoordinates[rank], board, color) === false) return "stalemate";
+	if(!otherMoves(board, color) && moves.length <= 0) {
+		if(!inCheck(fileCoordinates[file] + rankCoordinates[rank], board, color))
+			return "stalemate";
 		return "checkmate";
 	}
 
@@ -2057,10 +2059,12 @@ function ended(kingCoordinate, board, color) {
 }
 
 function promote(pawnCoordinate, board, piece) {
-	board[coordinates[pawnCoordinate[1]]][coordinates[pawnCoordinate[0]]] = piece;
+	board
+		[coordinates[pawnCoordinate[1]]]
+		[coordinates[pawnCoordinate[0]]] = piece;
 }
 
-/*let board = [
+let board = [
  	[RED + 'r' + WHITE, RED + 'N' + WHITE, RED + 'B' + WHITE, RED + 'Q' + WHITE, RED + 'k' + WHITE, RED + 'B' + WHITE, RED + 'N' + WHITE, RED + 'r' + WHITE],
 	[RED + 'p' + WHITE, RED + 'p' + WHITE, RED + 'p' + WHITE, RED + 'p' + WHITE, RED + 'p' + WHITE, RED + 'p' + WHITE, RED + 'p' + WHITE, RED + 'p' + WHITE],
  	['', '', '', '', '', '', '', ''],
@@ -2069,17 +2073,7 @@ function promote(pawnCoordinate, board, piece) {
 	['', '', '', '', '', '', '', ''],
  	['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
  	['r', 'N', 'B', 'Q', 'k', 'B', 'N', 'r']
-];*/
-let board = [
-	['', '', '', '', '', RED + 'B' + WHITE, '', ''],
- 	['', '', '', '', '', '', '', ''],
- 	['', 'P', '', '', '', '', '', ''],
- 	['', '', '', '', '', '', '', ''],
- 	['', RED + 'R' + WHITE, '', '', '', '', '', ''],
-	[RED + 'K' + WHITE, '', '', '', '', '', '', ''],
- 	['', '', '', '', '', '', '', ''],
-	['K', '', '', '', '', '', '', '']
-]
+];
 
 let promotionMap = {
 	1: 'Q',
@@ -2101,7 +2095,6 @@ let responding;
 let beforeCoordinate, afterCoordinate;
 let pieceMoves;
 let enPassant = [];
-let highlight = [];
 let promotionPiece;
 
 show();
@@ -2114,10 +2107,10 @@ while(running) {
 	console.log("\n");
 	if(gameConclusion !== "") console.log(gameConclusion + "\n");
 
-	if(errorMessage !== "") console.log(errorMessage + "\n");
+	if(errorMessage !== "") console.log(RED + errorMessage + RESET + "\n");
 	errorMessage = "";
 
-	action = readline.question("Welcome to CLI-Chess!\n\n1 - Play\n2 - Quit\n\nEnter a number: ");
+	action = readline.question("Welcome to CLI-Chess!\n\n" + BLUE + "1 - Play\n2 - Quit\n\n" + RESET + "Enter a number: ");
 
 	switch(parseInt(action)) {
 		case 1:
@@ -2129,11 +2122,11 @@ while(running) {
 				displayBoard(currentBoard);
 				
 				console.log("\n");
-				if(errorMessage !== "") console.log(errorMessage + "\n");
+				if(errorMessage !== "") console.log(RED + errorMessage + RESET + "\n");
 				errorMessage = "";
 
 				console.log("Turn: " + turn);
-				play = readline.question("\n1 - Resign\n2 - Offer draw\n3 - Make a move\n\nEnter a number: ");
+				play = readline.question(BLUE + "\n1 - Resign\n2 - Offer draw\n3 - Make a move\n\n" + RESET + "Enter a number: ");
 
 				switch(parseInt(play)) {
 					case 1:
@@ -2149,10 +2142,10 @@ while(running) {
 							displayBoard(currentBoard);
 
 							console.log("\n");
-							if(errorMessage !== "") console.log(errorMessage + "\n");
+							if(errorMessage !== "") console.log(RED + errorMessage + RESET + "\n");
 							errorMessage = "";
 
-							drawOffer = readline.question(turn + " Offered a draw, will you accept?\n\n1 - Accept\n2 - Refuse\nEnter a number: ");
+							drawOffer = readline.question(GREEN + turn + " Offered a draw, will you accept?\n\n" + BLUE + "1 - Accept\n2 - Refuse\n\n" + RESET + "Enter a number: ");
 
 							switch(parseInt(drawOffer)) {
 								case 1:
@@ -2177,13 +2170,12 @@ while(running) {
 							displayBoard(currentBoard);
 
 							console.log("\n");
-							if(errorMessage !== "") console.log(errorMessage + "\n");
+							if(errorMessage !== "") console.log(RED + errorMessage + RESET + "\n");
 							errorMessage = "";
 
-							beforeCoordinate = readline.question("Enter a piece coordinate: ");
-							beforeCoordinate = beforeCoordinate.toLowerCase();
+							beforeCoordinate = readline.question("Enter a piece coordinate: ").toLowerCase();
 
-							if(!/^\w{1}\d{1}$/i.test(beforeCoordinate)) {
+							if(!/^\w\d$/i.test(beforeCoordinate)) {
 								errorMessage = '"' + beforeCoordinate + '"' + " is not a valid coordinate!";
 								continue;
 							}
@@ -2221,25 +2213,23 @@ while(running) {
 						}
 						while(true) {
 							console.clear();
-							highlight = JSON.parse(JSON.stringify(pieceMoves));
-							displayBoard(currentBoard, highlight);
+							displayBoard(currentBoard, JSON.parse(JSON.stringify(pieceMoves)));
 
 							console.log("\n");
-							if(errorMessage !== "") console.log(errorMessage + "\n");
+							if(errorMessage !== "") console.log(RED + errorMessage + RESET + "\n");
 							errorMessage = "";
 
+							process.stdout.write(BLUE);
 							for(let i = 0; i < pieceMoves.length; ++i) {
 								if(pieceMoves[i] === "b1o" || pieceMoves[i] === "b8o") {
 									console.log(i+1 + ' - O-O-O');
-									continue;
-								}
-								if(pieceMoves[i] === "g1o" || pieceMoves[i] === "g8o") {
+								} else if(pieceMoves[i] === "g1o" || pieceMoves[i] === "g8o") {
 									console.log(i+1 + ' - O-O');
-									continue;
+								} else {
+									console.log(i+1 + ' - ' + pieceMoves[i]);
 								}
-								console.log(i+1 + ' - ' + pieceMoves[i]);
 							}
-							console.log();
+							console.log(RESET);
 
 							afterCoordinate = readline.question("Enter a number to move the piece to: ");
 
@@ -2258,18 +2248,16 @@ while(running) {
 						if(piece === 'P' && afterCoordinate[1] === '8') {
 							while(true) {
 								console.clear();
-								displayBoard(currentBoard)
+								displayBoard(currentBoard);
 
 								console.log('\n');
-								if(errorMessage !== '') {
-									console.log(errorMessage + '\n');
-								}
+								if(errorMessage !== '') console.log(RED + errorMessage + RESET + '\n');
 								errorMessage = '';
 
-								promotionPiece = readline.question("What would you like to promote the pawn to?\n\n1 - Queen\n2 - Rook\n3 - Knight\n4 - Bishop\n\nEnter a number: ");
+								promotionPiece = readline.question("What would you like to promote the pawn to?\n\n" + BLUE + "1 - Queen\n2 - Rook\n3 - Knight\n4 - Bishop\n\n" + RESET + "Enter a number: ");
 
 								if(!/^\d$/.test(promotionPiece) || parseInt(promotionPiece) > 4 || parseInt(promotionPiece) < 1) {
-									errorMessage = "Invalid promotion choice!";
+									errorMessage = '"' + promotionPiece+ '"' + "is an invalid promotion choice!";
 									continue;
 								}
 
@@ -2309,5 +2297,3 @@ while(running) {
 }
 
 hide();
-
-// TODO: optimize and clean this shit
