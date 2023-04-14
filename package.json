@@ -1,0 +1,24 @@
+{
+  "name": "cli_chess",
+  "version": "1.0.0",
+  "description": "Chess in your terminal! Made in JavaScript",
+  "main": "chess.js",
+  "dependencies": {
+    "alternate-screen": "^1.0.0",
+    "readline-sync": "^1.4.10"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sharkpause/CLI-Chess.git"
+  },
+  "author": "sharkPause",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/Sharkpause/CLI-Chess/issues"
+  },
+  "homepage": "https://github.com/Sharkpause/CLI-Chess#readme"
+}
