@@ -50,6 +50,43 @@ const coordinates = {
 	8: 0
 }
 
+function pieceCharacter(square) {
+	switch(square) {
+		case 'r':
+		case 'R':
+			return String.fromCharCode(0x265c);
+		case RED + 'r' + WHITE:
+		case RED + 'R' + WHITE:
+			return RED + String.fromCharCode(0x265c) + WHITE;
+		case 'N':
+			return String.fromCharCode(0x265e);
+		case RED + 'N' + WHITE:
+			return RED + String.fromCharCode(0x265e) + WHITE;
+		case 'B':
+			return String.fromCharCode(0x265d);
+		case RED + 'B' + WHITE:
+			return RED + String.fromCharCode(0x265d) + WHITE;
+		case 'k':
+		case 'K':
+			return String.fromCharCode(0x265a);
+		case RED + 'k' + WHITE:
+		case RED + 'K' + WHITE:
+			return RED + String.fromCharCode(0x265a) + WHITE;
+		case 'Q':
+			return String.fromCharCode(0x265b);
+		case RED + 'Q' + WHITE:
+			return RED + String.fromCharCode(0x265b) + WHITE;
+		case 'p':
+		case 'P':
+			return String.fromCharCode(0x265f);
+		case RED + 'p' + WHITE:
+		case RED + 'P' + WHITE:
+			return RED + String.fromCharCode(0x265f) + WHITE;
+		default: 
+			return square;
+	}
+}
+
 function displayBoard(board, highlightedSquares=[]) {
 	highlightedSquares[highlightedSquares.indexOf("g1o")] = "g1";
 	highlightedSquares[highlightedSquares.indexOf("b1o")] = "b1";
@@ -65,22 +102,24 @@ function displayBoard(board, highlightedSquares=[]) {
 			squareCoordinate = fileCoordinates[file] + rankCoordinates[rank];
 			isWhite = rank % 2 === file % 2;
 
+			const pieceSquare = pieceCharacter(square);
+
 			if(square !== '') {
 				if(square.includes(RED)) {
 					if(highlightedSquares.includes(squareCoordinate)) {
-						process.stdout.write(BG_YELLOW + ' ' + square + WHITE + ' ');
+						process.stdout.write(BG_YELLOW + ' ' + pieceSquare + WHITE + ' ');
 					} else if(isWhite) {
-						process.stdout.write(BG_WHITE + ' ' + square + WHITE + ' ');
+						process.stdout.write(BG_WHITE + ' ' + pieceSquare + WHITE + ' ');
 					} else {
-						process.stdout.write(BG_BLACK + ' ' + square + WHITE + ' ');
+						process.stdout.write(BG_BLACK + ' ' + pieceSquare + WHITE + ' ');
 					}
 				} else {
 					if(highlightedSquares.includes(squareCoordinate)) {
-						process.stdout.write(BG_YELLOW + ' ' + BLUE + square + WHITE + ' ');
+						process.stdout.write(BG_YELLOW + ' ' + BLUE + pieceSquare + WHITE + ' ');
 					} else if(isWhite) {
-						process.stdout.write(BG_WHITE + ' ' + BLUE + square + WHITE + ' ');
+						process.stdout.write(BG_WHITE + ' ' + BLUE + pieceSquare + WHITE + ' ');
 					} else
-						process.stdout.write(BG_BLACK + BLUE + ' ' + square + WHITE + ' ');
+						process.stdout.write(BG_BLACK + BLUE + ' ' + pieceSquare + WHITE + ' ');
 					}
 			} else {
 				if(highlightedSquares.includes(squareCoordinate)) {
